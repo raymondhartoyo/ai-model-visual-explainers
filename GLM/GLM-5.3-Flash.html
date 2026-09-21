@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Explore GLM-5.3-Flash: vision tokens, 45 hybrid attention layers, expert routing, and inference state.">
+<title>GLM-5.3-Flash — Architecture atlas</title>
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#090f17;--panel:#101a26;--line:#263443;--text:#e6eef5;--muted:#9badbf;--blue:#78b6ff;--amber:#f3bc6d;--teal:#58dbcd;--violet:#b79afa;--green:#92dfaa}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,select{font:inherit}button,select,summary{cursor:pointer}button,select{color:var(--text);border:1px solid var(--line);background:#14202d;border-radius:7px;padding:9px 13px;min-height:42px}button:hover{background:#223448}button[aria-pressed=true]{color:var(--teal);border-color:var(--teal);background:#153333}button:disabled{opacity:.45;cursor:default}:focus-visible{outline:3px solid var(--amber);outline-offset:4px}a{color:var(--blue);text-underline-offset:3px}header,main,footer{max-width:1540px;margin:auto;padding:0 36px}header{padding-top:27px;padding-bottom:24px;border-bottom:1px solid var(--line)}.eyebrow{font:11px/1.5 ui-monospace,monospace;letter-spacing:2px;text-transform:uppercase;color:var(--teal)}.heading{display:flex;justify-content:space-between;gap:24px;align-items:center}h1{font-size:clamp(28px,3vw,42px);letter-spacing:-1.5px;margin:7px 0 4px;font-weight:620}h1 span{font-weight:350;color:var(--muted)}header p{margin:0;color:var(--muted);max-width:800px}.edition{font:12px/1.8 ui-monospace,monospace;text-align:right;color:var(--muted);white-space:nowrap}.metrics{display:flex;gap:35px;margin-top:23px}.metric b{font-size:23px;font-weight:550;display:block}.metric span{font-size:12px;color:var(--muted)}nav{display:flex;gap:8px;padding:22px 0;flex-wrap:wrap}nav button{background:transparent}nav small{margin-right:8px;opacity:.65;font:11px ui-monospace,monospace}.workspace{display:grid;grid-template-columns:minmax(0,1fr) 330px;border:1px solid var(--line);border-radius:12px;overflow:hidden}.scene-panel{min-width:0;background:radial-gradient(ellipse at 50% 45%,#162734,#0c141f 75%);position:relative;display:flex;flex-direction:column}.scene-header{padding:21px 24px 0;display:flex;justify-content:space-between;gap:12px}.scene-header h2{font-size:18px;margin:0;font-weight:500}.scene-header p{color:var(--muted);margin:4px 0;font-size:12px}.badge{font:10px/1.5 ui-monospace,monospace;color:var(--amber);border:1px solid #5c4c36;border-radius:4px;padding:4px 7px;align-self:start;white-space:nowrap}#viewport{height:490px;position:relative;overflow:hidden;touch-action:pan-y}canvas{display:block;width:100%;height:100%;touch-action:none}#viewport:focus-visible{outline-offset:-4px}.scene-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 20px;border-top:1px solid var(--line)}.scene-tools button{font-size:12px;padding:7px 10px}.scene-tools label{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px;margin-left:auto}input{accent-color:var(--teal)}.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:11px;color:var(--muted);padding:0 24px 18px}.legend span:before{content:'■';color:var(--c);margin-right:6px}.legend .sparse:before{content:'◆'}aside{background:var(--panel);border-left:1px solid var(--line);padding:23px;min-width:0}.section-label{font:11px ui-monospace,monospace;color:var(--muted);letter-spacing:1px;text-transform:uppercase}aside h3{font-size:24px;font-weight:500;letter-spacing:-.5px;line-height:1.2;margin:12px 0}aside p{color:#b8c7d5;font-size:13px}#detail-facts{margin:22px 0}dl div{display:flex;gap:12px;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:12px}dt{color:var(--muted)}dd{margin:0;text-align:right}#detail-note{border-left:2px solid var(--teal);padding-left:12px}#layer-controls{margin-top:20px}#layer-controls label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px}select{width:100%;font-size:13px}.layer-navigation{display:flex;gap:7px;margin-top:8px}.layer-navigation button{flex:1;font-size:12px}.phase-controls{display:flex;gap:8px;margin-top:18px}.phase-controls button{flex:1;font-size:12px}.runtime{font-size:12px;color:var(--muted);margin-top:12px}.runtime select{margin-top:6px}.timeline{padding:22px 0}#status{font:12px/1.6 ui-monospace,monospace;color:var(--teal);min-height:20px;margin:0 0 14px}#steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;list-style:none;padding:0;margin:0}#steps li{padding:13px 15px;border-top:2px solid var(--line);font-size:12px;color:var(--muted)}#steps li.active{border-color:var(--teal);background:#102326;color:var(--text)}#steps b{display:block;font-weight:500;margin-bottom:4px;color:var(--text)}.sources{border-top:1px solid var(--line);padding:20px 0 28px}.sources summary{font-size:13px;color:var(--muted)}.sources-content{max-width:1000px;font-size:13px;color:var(--muted)}.sources-content li{margin:9px 0}.sources-content code{overflow-wrap:anywhere}.certainty{display:flex;flex-wrap:wrap;gap:16px;font-size:11px;color:var(--muted);margin-bottom:16px}.certainty b{font-weight:500;color:var(--text)}footer{font-size:11px;color:var(--muted);padding-bottom:25px}#viewport.fallback{height:auto;min-height:380px}.mobile-hint{display:none}#fallback{padding:25px;color:var(--text)}#fallback h3{color:var(--amber)}#fallback ol{padding-left:20px}#fallback li{margin-bottom:13px}[hidden]{display:none!important}.static-guide{font-size:13px;color:var(--muted);padding-bottom:16px}.static-guide summary{cursor:pointer}.static-guide li{margin:10px 0}
+@media(max-width:1100px){header,main,footer{padding-left:24px;padding-right:24px}.workspace{grid-template-columns:minmax(0,1fr) 285px}aside{padding:19px}#viewport{height:450px}.edition{display:none}nav{gap:6px}nav button{font-size:13px;padding:8px 10px}#steps{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){header,main,footer{padding-left:16px;padding-right:16px}header{padding-top:20px}.workspace{grid-template-columns:1fr}aside{border-left:0;border-top:1px solid var(--line)}#viewport{height:380px}.metrics{gap:22px;flex-wrap:wrap}.metric b{font-size:21px}.metric span{font-size:11px}.heading{display:block}nav{padding:17px 0;gap:7px}nav button{flex-grow:1}.scene-header{padding:17px 16px 0}.badge{font-size:9px}.scene-header h2{font-size:16px}.legend{padding:0 16px 14px;gap:12px}.scene-tools{padding:12px}.scene-tools label{margin-left:0}#steps{gap:7px}#steps li{padding:10px}h1 span{display:block;font-size:24px;letter-spacing:-.5px}}
+@media(max-width:760px){#viewport:not(.fallback){overflow-x:auto;touch-action:pan-x}#viewport canvas{touch-action:pan-x}.mobile-hint{display:block;color:var(--muted);font-size:11px;margin:4px 16px 0}.scene-header{flex-wrap:wrap}.scene-header .badge{margin-bottom:6px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header>
+<div class="eyebrow">Architecture atlas / 001</div>
+<div class="heading"><div><h1>GLM-5.3-Flash <span>Inside the model</span></h1><p>Follow a token from multimodal input to generation through a hybrid attention backbone.</p></div><div class="edition">INTERACTIVE FIELD GUIDE<br>Configuration checked · 19 SEP 2026</div></div>
+<div class="metrics"><div class="metric"><b>≈320B <span>/ ≈18B active</span></b><span>parameters · per-token active subset</span></div><div class="metric"><b>45</b><span>language layers</span></div><div class="metric"><b>34 + 11</b><span>KDA + sparse MLA</span></div><div class="metric"><b>1,048,576</b><span>configured maximum positions</span></div></div>
+</header>
+<main>
+<nav aria-label="Architecture views"><button data-view="overview" aria-pressed="true"><small>01</small>Overview</button><button data-view="vision" aria-pressed="false"><small>02</small>Image path</button><button data-view="stack" aria-pressed="false"><small>03</small>Layer stack</button><button data-view="block" aria-pressed="false"><small>04</small>Exploded block</button><button data-view="cache" aria-pressed="false"><small>05</small>KV cache</button></nav>
+<div class="certainty"><span><b>● Verified config</b> · checkpoint values</span><span><b>↳ Verified flow</b> · implementation order</span><span><b>◇ Schematic</b> · geometry, timing & routing examples</span></div>
+<div class="workspace">
+<section class="scene-panel" aria-labelledby="view-title">
+<div class="scene-header"><div><h2 id="view-title">One sequence, two attention paths</h2><p id="view-subtitle">Text and visual features meet inside the language backbone.</p></div><span class="badge">SCHEMATIC · NOT TO SCALE</span></div>
+<p class="mobile-hint">Swipe the diagram horizontally to explore →</p>
+<div id="viewport" tabindex="0" role="img" aria-label="Interactive architecture diagram. Use the view buttons and layer selector for equivalent textual information. Arrow keys orbit; plus and minus zoom."><div id="fallback" hidden><h3>Readable architecture view</h3><p id="fallback-reason">The 3D renderer is unavailable. All views, layer details and steps remain usable below.</p><ol id="fallback-flow"></ol></div></div>
+<div class="legend"><span style="--c:var(--blue)">Text</span><span style="--c:var(--amber)">Vision</span><span style="--c:var(--teal)">KDA · rectangle</span><span class="sparse" style="--c:var(--violet)">Sparse MLA · diamond</span><span style="--c:var(--green)">Experts</span></div>
+<div class="scene-tools"><button id="play" aria-pressed="false">Play flow</button><button id="step">Step →</button><button id="reset">Reset camera</button><button id="zoom-in" aria-label="Zoom in">+</button><button id="zoom-out" aria-label="Zoom out">−</button><label><input id="motion" type="checkbox">Reduce motion</label></div>
+</section>
+<aside aria-label="View explanation"><div class="section-label" id="detail-category">01 / The big picture</div><h3 id="detail-title">Multimodal in.<br>One token stream out.</h3><p id="detail-body"></p><dl id="detail-facts"></dl><p id="detail-note"></p><a id="detail-source" href="#sources">Explore the sources ↗</a>
+<div id="layer-controls" hidden><label for="layer">Inspect a language layer</label><select id="layer"></select><div class="layer-navigation"><button id="previous">← Previous</button><button id="next">Next →</button></div></div>
+<div id="cache-controls" hidden><div class="phase-controls" aria-label="Generation phase"><button data-phase="prefill" aria-pressed="true">Prefill</button><button data-phase="decode" aria-pressed="false">Decode</button></div><label class="runtime">Optional serving cache precision<select id="precision"><option>BF16</option><option>FP8</option></select></label></div>
+</aside></div>
+<section class="timeline" aria-label="Token flow"><p id="status" role="status" aria-live="polite" aria-atomic="true"></p><ol id="steps"></ol></section>
+<details class="static-guide"><summary>Read the complete architecture without the diagram</summary><ol><li>Text becomes embeddings. Images become 14-pixel patches: a nominal 448 × 448 image has 1,024 patches. Patch embedding → 24 vision blocks → post-normalization → 2 × 2 downsampling → merger MLP produces 256 features, each 4,096-dimensional.</li><li>Projected features replace image placeholders in the language sequence. Video frames reuse image placeholders inside video boundaries, with image boundaries and timestamps per frame. The processor samples at 2 FPS and uses temporal patch size 2.</li><li>The language backbone has 45 layers: 34 KDA and 11 sparse MLA. Zero-based sparse indices are 3, 7, 11, 15, 19, 23, 27, 31, 35, 39 and 43. The last layer is KDA. Layers 0–2 have dense FFNs; all later layers use 8 of 288 routed experts plus one shared expert.</li><li>Each attention and FFN sublayer first collapses four mHC streams, then normalizes, computes the sublayer, and expands/mixes the residual streams. Geometry here is conceptual; mHC uses learned mappings and 20 Sinkhorn iterations.</li><li>Prefill processes the input sequence, including visual features. Decode adds tokens one at a time. KDA updates bounded recurrent and convolution state. Sparse MLA retains per-token latent KV and indexer state in the reference implementation. IndexPool pools groups of four for candidate scoring, then expands selections to raw indices: up to 2,048 selected positions plus up to three tail tokens.</li><li>Output logits support next-token selection. One auxiliary MTP checkpoint layer sits outside the 45-layer backbone. Transformers omits its execution; vLLM can use it for speculative decoding. Cache precision is a serving choice.</li></ol></details>
+<details class="sources" id="sources"><summary>Sources, pinned revisions & caveats</summary><div class="sources-content" id="source-ledger"></div></details>
+<noscript><p>JavaScript is disabled. Open “Read the complete architecture” above for the full text guide. Sources: <a href="https://huggingface.co/zai-org/GLM-5.3-Flash/blob/eb9eb208eb0d988989d07a6a12d0fdeb5f52574a/config.json">checkpoint configuration</a> and <a href="https://github.com/huggingface/transformers/blob/c587bc884db2c2e31fc2b8102314656b17aa07b1/src/transformers/models/glm5_next/modeling_glm5_next.py">reference implementation</a>.</p></noscript>
+</main>
+<footer>An educational schematic, not a model runner. Parameter counts are approximate and are not memory requirements.</footer>
+<script>
+'use strict';
+// 1. Source data. Arrays are copied from the pinned checkpoint, not inferred from a pattern.
+const modelSpec = {
+  "architectures": [
+    "Glm5NextForConditionalGeneration"
+  ],
+  "text_config": {
+    "attention_bias": false,
+    "attention_dropout": 0.0,
+    "dtype": "bfloat16",
+    "eos_token_id": [
+      154820,
+      154827,
+      154829
+    ],
+    "first_k_dense_replace": 3,
+    "hc_eps": 1e-06,
+    "hc_mult": 4,
+    "hc_sinkhorn_iters": 20,
+    "head_dim": 0,
+    "hidden_act": "silu",
+    "hidden_size": 4096,
+    "index_head_dim": 128,
+    "index_kpool": 4,
+    "index_kpool_always_select_tail": true,
+    "index_kpool_compress": true,
+    "index_n_heads": 32,
+    "index_topk": 2048,
+    "index_share_for_mtp_iteration": true,
+    "indexer_rope_interleave": true,
+    "indexer_types": [
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full",
+      "full"
+    ],
+    "initializer_range": 0.02,
+    "intermediate_size": 12288,
+    "kv_lora_rank": 512,
+    "layer_types": [
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "deepseek_sparse_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "deepseek_sparse_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "deepseek_sparse_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "deepseek_sparse_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "deepseek_sparse_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "deepseek_sparse_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "deepseek_sparse_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "deepseek_sparse_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "deepseek_sparse_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "deepseek_sparse_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "deepseek_sparse_attention",
+      "linear_attention"
+    ],
+    "linear_attn_config": {
+      "num_heads": 64,
+      "gate_lower_bound": -5.0,
+      "head_dim": 128,
+      "short_conv_kernel_size": 4,
+      "kda_layers": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        8,
+        9,
+        10,
+        12,
+        13,
+        14,
+        16,
+        17,
+        18,
+        20,
+        21,
+        22,
+        24,
+        25,
+        26,
+        28,
+        29,
+        30,
+        32,
+        33,
+        34,
+        36,
+        37,
+        38,
+        40,
+        41,
+        42,
+        44
+      ],
+      "full_attn_layers": [
+        3,
+        7,
+        11,
+        15,
+        19,
+        23,
+        27,
+        31,
+        35,
+        39,
+        43
+      ]
+    },
+    "max_position_embeddings": 1048576,
+    "mhc": true,
+    "mla_use_nope": true,
+    "mlp_layer_types": [
+      "dense",
+      "dense",
+      "dense",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse",
+      "sparse"
+    ],
+    "model_type": "glm5_next_text",
+    "moe_intermediate_size": 2048,
+    "moe_router_dtype": "float32",
+    "n_group": 1,
+    "n_routed_experts": 288,
+    "n_shared_experts": 1,
+    "norm_topk_prob": true,
+    "num_attention_heads": 64,
+    "num_experts_per_tok": 8,
+    "num_hidden_layers": 45,
+    "num_key_value_heads": 64,
+    "num_nextn_predict_layers": 1,
+    "output_router_logits": false,
+    "pad_token_id": 154820,
+    "q_lora_rank": 1536,
+    "qk_head_dim": 256,
+    "qk_nope_head_dim": 256,
+    "qk_rope_head_dim": 0,
+    "rms_norm_eps": 1e-05,
+    "routed_scaling_factor": 2.5,
+    "router_aux_loss_coef": 0.001,
+    "scoring_func": "sigmoid",
+    "swiglu_limit": 10.0,
+    "tie_word_embeddings": false,
+    "topk_group": 1,
+    "topk_method": "noaux_tc",
+    "use_cache": true,
+    "v_head_dim": 256,
+    "vocab_size": 154880
+  },
+  "vision_config": {
+    "attention_bias": true,
+    "attention_dropout": 0.0,
+    "depth": 24,
+    "hidden_act": "silu",
+    "hidden_size": 1024,
+    "image_size": 448,
+    "in_channels": 3,
+    "initializer_range": 0.02,
+    "intermediate_size": 4096,
+    "model_type": "glm5_next_vision",
+    "num_heads": 16,
+    "out_hidden_size": 4096,
+    "patch_size": 14,
+    "projection_intermediate_size": 10240,
+    "rms_norm_eps": 1e-05,
+    "spatial_merge_size": 2,
+    "swiglu_limit": 10.0,
+    "temporal_patch_size": 2
+  },
+  "image_token_id": 154854,
+  "video_token_id": 154855,
+  "image_start_token_id": 154830,
+  "image_end_token_id": 154831,
+  "video_start_token_id": 154832,
+  "video_end_token_id": 154833,
+  "tie_word_embeddings": false,
+  "model_type": "glm5_next",
+  "transformers_version": "5.16.0",
+  "processor": {
+    "image_processor": {
+      "do_rescale": true,
+      "patch_expand_factor": 1,
+      "merge_size": 2,
+      "image_mean": [
+        0.48145466,
+        0.4578275,
+        0.40821073
+      ],
+      "image_std": [
+        0.26862954,
+        0.26130258,
+        0.27577711
+      ],
+      "temporal_patch_size": 2,
+      "patch_size": 14,
+      "min_image_tokens": 16,
+      "max_image_tokens": 8000,
+      "image_processor_type": "Glm5NextImageProcessor"
+    },
+    "video_processor": {
+      "do_rescale": true,
+      "video_processor_type": "Glm5NextVideoProcessor",
+      "patch_expand_factor": 1,
+      "merge_size": 2,
+      "image_mean": [
+        0.48145466,
+        0.4578275,
+        0.40821073
+      ],
+      "image_std": [
+        0.26862954,
+        0.26130258,
+        0.27577711
+      ],
+      "temporal_patch_size": 2,
+      "patch_size": 14,
+      "min_image_tokens": 16,
+      "max_image_tokens": 240000,
+      "fps": 2
+    },
+    "processor_class": "Glm5NextProcessor"
+  }
+};
+const sourceMeta = {checked:'2026-09-19', checkpoint:'eb9eb208eb0d988989d07a6a12d0fdeb5f52574a', transformers:'c587bc884db2c2e31fc2b8102314656b17aa07b1'};
+const $=id=>document.getElementById(id), t=modelSpec.text_config, v=modelSpec.vision_config, p=modelSpec.processor;
+const counts={linear:t.layer_types.filter(x=>x==='linear_attention').length,sparse:t.layer_types.filter(x=>x==='deepseek_sparse_attention').length};
+const colors={text:0x78b6ff,vision:0xf3bc6d,linear:0x58dbcd,sparse:0xb79afa,moe:0x92dfaa,gray:0x8398ab};
+const hf=`https://huggingface.co/zai-org/GLM-5.3-Flash/blob/${sourceMeta.checkpoint}/`;
+const tf=`https://github.com/huggingface/transformers/blob/${sourceMeta.transformers}/src/transformers/`;
+const sources={config:hf+'config.json',processor:hf+'processor_config.json',model:tf+'models/glm5_next/modeling_glm5_next.py',processing:tf+'models/glm5_next/processing_glm5_next.py',cache:tf+'cache_utils.py',card:hf+'README.md',docs:'https://huggingface.co/docs/transformers/main/en/model_doc/glm5_next',recipe:'https://github.com/vllm-project/recipes/blob/main/models/zai-org/GLM-5.3-Flash.yaml',article:'https://autoclaw.z.ai/blog/model/glm-5-3-flash/'};
+const titles={overview:['One sequence, two attention paths','Text and visual features meet inside the language backbone.'],vision:['From pixels to language features','The full patch sequence traverses the vision encoder before merging.'],stack:['Every layer, in order','Read left to right, then down. Select any node or use the layer selector.'],block:['Inside a language layer','Verified operation order; conceptual stream geometry and routing.'],cache:['Two kinds of memory','Bounded recurrent state alongside growing per-token sparse-attention cache.']};
+const state={view:'overview',layer:0,stage:0,playing:false,phase:'prefill',decode:0,reduced:matchMedia('(prefers-reduced-motion: reduce)').matches};
+function flowSteps(){
+ const sparse=t.layer_types[state.layer]==='deepseek_sparse_attention',moe=t.mlp_layer_types[state.layer]==='sparse';
+ return ({overview:[['Inputs','Text, image and video enter their processing paths.'],['Fusion','Visual features replace placeholders among text embeddings.'],['Hybrid backbone',`${counts.linear} KDA + ${counts.sparse} sparse MLA layers, with mHC and dense/MoE FFNs.`],['Output','Logits → token selection; optional auxiliary MTP execution.']],vision:[['Patch embedding',`${v.image_size}² / ${v.patch_size}² = ${(v.image_size/v.patch_size)**2} raw spatial patches.`],['Vision encoder',`All raw patches traverse ${v.depth} blocks, then post-normalization.`],['Downsample + merger',`${v.spatial_merge_size} × ${v.spatial_merge_size} spatial reduction → 256 features of width ${v.out_hidden_size}.`],['Sequence insertion','Replace repeated image placeholders; retain boundary tokens.']],stack:[['Dense beginning',`Layers 1–${t.first_k_dense_replace}: KDA attention and dense FFNs.`],['Hybrid middle','Sparse layers occur at the exact checkpoint indices; later FFNs use MoE.'],['Selected layer',`Layer ${state.layer+1} (index ${state.layer}): ${sparse?'sparse MLA':'KDA'} + ${moe?'MoE':'dense FFN'}.`],['Final layer',`Layer ${t.num_hidden_layers}: KDA + MoE, followed by the output path.`]],block:[['mHC → norm',`Calculate weights; collapse ${t.hc_mult} streams, then RMSNorm.`],['Attention → mix',sparse?'Indexer → pool scores → raw indices → latent KV access → mHC expansion/mixing.':'Short convolution + causal recurrent KDA update → mHC expansion/mixing.'],['mHC → norm → FFN',moe?`Route to ${t.num_experts_per_tok} of ${t.n_routed_experts} experts and ${t.n_shared_experts} shared expert.`:'A dense feed-forward network; no routed experts in this layer.'],['Expand + residual mix','Restore the four residual streams for the next layer.']],cache:state.phase==='prefill'?[['Input sequence','Text and image-derived tokens participate in prefill.'],['KDA update','Process the sequence into bounded recurrent/conv state per layer.'],['Sparse state','Retain per-token latent KV and indexer material.'],['Ready to decode','Cached context now includes the visual information.']]:[['Append one token',`Illustrative decode token ${state.decode+1}; past context is retained.`],['Update recurrence','KDA changes state values without adding a state row per token.'],['Select positions',`Pool ${t.index_kpool} index keys → score → expand selected pools + tail.`],['Read and predict',`Read selected latent KV; up to ${t.index_topk} + ${t.index_kpool-1} positions, subject to causality.`]]})[state.view];
+}
+function facts(rows){$('detail-facts').innerHTML=rows.map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}
+function updateText(){
+ const sparse=t.layer_types[state.layer]==='deepseek_sparse_attention',moe=t.mlp_layer_types[state.layer]==='sparse';
+ $('view-title').textContent=titles[state.view][0];$('view-subtitle').textContent=titles[state.view][1];
+ $('layer-controls').hidden=!['stack','block'].includes(state.view);$('cache-controls').hidden=state.view!=='cache';
+ $('layer').value=state.layer;$('previous').disabled=state.layer===0;$('next').disabled=state.layer===t.num_hidden_layers-1;
+ const entries={overview:['01 / The big picture','Multimodal in. One token stream out.','Images and video travel through a separate vision encoder. Their projected features join text embeddings before the language layers. Each language layer contains attention and a feed-forward sublayer.',[['Hidden width',t.hidden_size.toLocaleString()],['Language layers',t.num_hidden_layers],['Vision layers',v.depth],['Auxiliary MTP layer',t.num_nextn_predict_layers]],'The expert FFN is inside each later language block. MTP is a checkpoint component outside the backbone; its execution depends on the framework.'],vision:['02 / Verified vision flow','1,024 patches → 256 features',`A nominal ${v.image_size} × ${v.image_size} image becomes 32 × 32 raw patches. All of them pass through the vision blocks. Only then does post-normalization, strided spatial downsampling and the merger MLP reduce the sequence.`,[['Vision width / heads',`${v.hidden_size} / ${v.num_heads}`],['Patch / spatial merge',`${v.patch_size}px / ${v.spatial_merge_size} × ${v.spatial_merge_size}`],['Output feature width',v.out_hidden_size],['Image token limits',`${p.image_processor.min_image_tokens}–${p.image_processor.max_image_tokens.toLocaleString()}`]],`Video: ${p.video_processor.fps} FPS and temporal patch size ${p.video_processor.temporal_patch_size}. Frames reuse image placeholders inside video markers, with image boundaries and timestamps. Language positions default to sequential indices offset by cached length; vision has spatial position coordinates.`],stack:['03 / Verified layer configuration',`Layer ${state.layer+1} / index ${state.layer}`,`This layer uses ${sparse?'sparse MLA attention with an indexer':'KDA linear attention with recurrent and short-convolution state'}, followed by ${moe?'a mixture-of-experts FFN':'a dense FFN'}.`,[['Attention',sparse?'Sparse MLA':'KDA / linear'],['Feed-forward',moe?'MoE':'Dense'],['Residual streams',t.hc_mult],['Stack totals',`${counts.linear} KDA / ${counts.sparse} sparse`]],sparse?`Indexer top-k ${t.index_topk}; pool size ${t.index_kpool}. Per-token latent KV rank ${t.kv_lora_rank}; query rank ${t.q_lora_rank}.`:`${t.linear_attn_config.num_heads} heads × ${t.linear_attn_config.head_dim} dimensions; convolution kernel ${t.linear_attn_config.short_conv_kernel_size}. State size is bounded in sequence length.`],block:['04 / Verified order, schematic tensors',`Layer ${state.layer+1}: ${sparse?'sparse MLA':'KDA'}`,`mHC computes collapse, expansion and residual-mixing weights before normalization. Attention runs on the collapsed, normalized representation. Expansion and mixing restore the streams. The FFN repeats this sequence.`,[['mHC streams / Sinkhorn',`${t.hc_mult} / ${t.hc_sinkhorn_iters} iterations`],['FFN',moe?`${t.num_experts_per_tok} of ${t.n_routed_experts} + ${t.n_shared_experts} shared`:'Dense'],[sparse?'Indexer head dimension':'KDA head dimension',sparse?t.index_head_dim:t.linear_attn_config.head_dim],[sparse?'MLA RoPE dim / NoPE':'Short convolution',sparse?`${t.qk_rope_head_dim} / ${t.mla_use_nope}`:`kernel ${t.linear_attn_config.short_conv_kernel_size}`]],moe?'Green cells show all routed experts. Eight bright cells and their illustrative scores change with each step. Routing examples are synthetic, not actual model outputs.':'The first three layers use dense FFNs. Select layer 4 or later to inspect top-8 expert routing.'],cache:['05 / Hybrid serving state',state.phase==='prefill'?'Prefill the context':'Decode one token at a time','KDA retains bounded recurrent and convolution state. The reference sparse MLA path keeps a latent KV vector and indexer material for each token. Both carry information from the visual prefix.',[['Latent KV rank',t.kv_lora_rank],['IndexPool grouping',`${t.index_kpool} → 1 scoring candidate`],['Selection budget',`${t.index_topk} + up to ${t.index_kpool-1} tail`],['Serving precision',`${$('precision').value} · optional`]],'IndexPool reduces candidate-scoring work; it does not make the main latent cache four times shorter. Selected pools expand back to raw token indices. Runtime layouts and precision support vary.']};
+ const e=entries[state.view];$('detail-category').textContent=e[0];$('detail-title').textContent=e[1];$('detail-body').textContent=e[2];facts(e[3]);$('detail-note').textContent=e[4];
+ $('detail-source').href=['vision','block','cache'].includes(state.view)?sources.model:sources.config;
+ document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.view===state.view));document.querySelectorAll('[data-phase]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.phase===state.phase));
+ const steps=flowSteps();$('steps').innerHTML=steps.map((s,i)=>`<li class="${i===state.stage?'active':''}" ${i===state.stage?'aria-current="step"':''}><b>0${i+1} / ${s[0]}</b>${s[1]}</li>`).join('');$('fallback-flow').innerHTML=steps.map(s=>`<li><strong>${s[0]}</strong> — ${s[1]}</li>`).join('');
+ $('status').textContent=`${state.playing?'Playing':'Paused'} · ${state.view==='cache'?state.phase+' · ':''}Step ${state.stage+1}/4: ${steps[state.stage][0]}${['stack','block'].includes(state.view)?` · Layer ${state.layer+1} (index ${state.layer})`:''}`;
+ $('play').textContent=state.playing?'Pause flow':'Play flow';$('play').setAttribute('aria-pressed',state.playing);
+}
+// 2. Three.js initialization and reusable geometry.
+let renderer,scene,camera,root,token,paths=[],selectable=[],viewAvailable=false,frame=0,lastTick=0,clockTime=0;
+let yaw=0,pitch=0,zoom=1;const viewport=$('viewport');
+function fallback(reason){viewport.classList.add('fallback');viewAvailable=false;state.playing=false;if(renderer)renderer.domElement.hidden=true;$('fallback').hidden=false;$('fallback-reason').textContent=reason+' All view explanations and controls remain available.';['reset','zoom-in','zoom-out'].forEach(id=>$(id).disabled=true);updateText()}
+let boxGeometry,diamondGeometry;
+function initScene(){
+ try{if(!window.THREE)throw new Error('Three.js could not load from the CDN.');renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor(0,0);viewport.prepend(renderer.domElement);scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(38,1,.1,150);scene.add(new THREE.HemisphereLight(0xdcefff,0x182633,.8));const light=new THREE.DirectionalLight(0xffffff,.65);light.position.set(-4,7,12);scene.add(light);boxGeometry=new THREE.BoxGeometry(1,1,1);diamondGeometry=new THREE.OctahedronGeometry(.7);viewAvailable=true;renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();fallback('The WebGL context was lost. Reload to restore 3D.');});bindCamera();new ResizeObserver(resize).observe(viewport);resize();rebuild();requestAnimationFrame(animate)}catch(error){fallback(error.message||'WebGL is unavailable.')}
+}
+function mesh(x,y,w,h,color,depth=.35,diamond=false){const m=new THREE.Mesh(diamond?diamondGeometry:boxGeometry,new THREE.MeshStandardMaterial({color,roughness:.55,metalness:.14}));m.position.set(x,y,0);m.scale.set(w,h,depth);root.add(m);return m}
+function label(text,x,y,width=3,color='#dce8f2',size=28){
+ const c=document.createElement('canvas'),ctx=c.getContext('2d');ctx.font='500 48px system-ui';
+ const measured=ctx.measureText(text).width+28;c.width=Math.ceil(measured);c.height=80;
+ ctx.font='500 48px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=color;ctx.fillText(text,c.width/2,40);
+ const tx=new THREE.CanvasTexture(c);tx.minFilter=THREE.LinearFilter;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,depthTest:false,transparent:true}));
+ const ratio=c.width/c.height,actualWidth=Math.min(width,ratio*.66);s.position.set(x,y,.65);s.scale.set(actualWidth,actualWidth/ratio,1);root.add(s);return s;
+}
+function line(points,color=0x526879,dashed=false){const g=new THREE.BufferGeometry().setFromPoints(points.map(p=>new THREE.Vector3(p[0],p[1],p[2]||0)));const m=dashed?new THREE.LineDashedMaterial({color,dashSize:.14,gapSize:.13}):new THREE.LineBasicMaterial({color,transparent:true,opacity:.7});const l=new THREE.Line(g,m);if(dashed)l.computeLineDistances();root.add(l);return l}
+function arrow(x1,y1,x2,y2,color=0x526879){line([[x1,y1],[x2,y2]],color);const a=Math.atan2(y2-y1,x2-x1),r=.16;line([[x2-r*Math.cos(a-.5),y2-r*Math.sin(a-.5)],[x2,y2],[x2-r*Math.cos(a+.5),y2-r*Math.sin(a+.5)]],color)}
+function node(text,x,y,color,w=3){const m=mesh(x,y,w,.75,color);label(text,x,y,w*.92,'#07151b',21);return m}
+function sequence(items,y,color){items.forEach((s,i)=>{const x=-6+i*4;node(s,x,y,color,3.25);if(i<items.length-1)arrow(x+1.7,y,x+2.25,y)});}
+function miniStack(x,y,count,width=2,spacing=.12){for(let i=0;i<count;i++){const sparse=t.layer_types[i]==='deepseek_sparse_attention';const m=mesh(x,y-i*spacing,width,.075,sparse?colors.sparse:colors.linear,.65);m.userData.layer=i;selectable.push(m)}}
+function instances(count,cols,x,y,spacing,color,selected=[]){const inst=new THREE.InstancedMesh(boxGeometry,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.6}),count);const d=new THREE.Object3D();for(let i=0;i<count;i++){d.position.set(x+(i%cols)*spacing,y-Math.floor(i/cols)*spacing,0);d.scale.set(spacing*.72,spacing*.72,.16);d.updateMatrix();inst.setMatrixAt(i,d.matrix);inst.setColorAt(i,new THREE.Color(selected.includes(i)?colors.moe:color))}root.add(inst);return inst}
+function syntheticImage(x,y,size){const c=document.createElement('canvas');c.width=c.height=448;const ctx=c.getContext('2d');const g=ctx.createLinearGradient(0,0,0,448);g.addColorStop(0,'#6d94a2');g.addColorStop(1,'#182f43');ctx.fillStyle=g;ctx.fillRect(0,0,448,448);ctx.fillStyle='#efbc75';ctx.beginPath();ctx.arc(310,120,54,0,Math.PI*2);ctx.fill();ctx.fillStyle='#234f57';ctx.beginPath();ctx.moveTo(0,350);ctx.lineTo(180,120);ctx.lineTo(350,448);ctx.lineTo(0,448);ctx.fill();ctx.fillStyle='#498177';ctx.beginPath();ctx.moveTo(170,448);ctx.lineTo(355,215);ctx.lineTo(448,340);ctx.lineTo(448,448);ctx.fill();ctx.strokeStyle='rgba(240,248,255,.3)';ctx.lineWidth=1;for(let i=0;i<=32;i++){ctx.beginPath();ctx.moveTo(i*14,0);ctx.lineTo(i*14,448);ctx.moveTo(0,i*14);ctx.lineTo(448,i*14);ctx.stroke()}const tx=new THREE.CanvasTexture(c),m=new THREE.Mesh(new THREE.PlaneGeometry(size,size),new THREE.MeshBasicMaterial({map:tx}));m.position.set(x,y,.1);root.add(m)}
+// 3. Five scene builders. Rendered topology is separate from the explanatory model data.
+function buildOverview(){
+ node('TEXT',-6,3.5,colors.text,2.5);node('IMAGE / VIDEO',-6,.6,colors.vision,2.5);node(`${v.depth}-layer vision`,-6,-1.1,colors.vision,2.5);arrow(-6,.1,-6,-.6,colors.vision);node('Merger',-6,-2.7,colors.vision,2.5);arrow(-6,-1.6,-6,-2.2,colors.vision);
+ node('Embedding stream',-1.7,3.5,colors.text,3.3);arrow(-4.5,3.5,-3.5,3.5,colors.text);line([[-4.5,-2.7],[-3.7,-2.7],[-3.7,2.2],[-1.7,2.2]],colors.vision);arrow(-1.7,2.2,-1.7,2.9,colors.vision);
+ miniStack(-1.7,1.7,t.num_hidden_layers,2.7,.12);arrow(-1.7,2.95,-1.7,1.95);label(`${t.num_hidden_layers} LANGUAGE LAYERS`,-1.7,-4.2,4);label('mHC + attention + FFN',2.7,1.35,4.3);node('Dense · first 3',3,.3,colors.gray,3.3);node('MoE · later 42',3,-1,colors.moe,3.3);line([[-.2,0],[1.2,0]],colors.moe,true);label('8 / 288 + shared',3,-1.9,3.5,'#92dfaa');node('Logits → next token',3,-3.5,colors.text,3.7);arrow(-.2,-3.5,.95,-3.5);node('Auxiliary MTP',6.5,3.5,colors.gray,2.7);line([[4.9,-3.5],[7.5,-3.5],[7.5,2.9]],colors.gray,true);label('Optional execution',6.5,2.55,3.2,'#9badbf');paths=[[-6,3.5],[-1.7,3.5],[-1.7,-1],[3,-3.5]];
+}
+function buildVisionPath(){
+ syntheticImage(-6,2.3,2.5);label(`${v.image_size} × ${v.image_size} example`,-6,4.05,3.5,'#f3bc6d');label('32 × 32 patches',-6,.65,3);arrow(-4.5,2.3,-3.5,2.3,colors.vision);
+ for(let i=0;i<v.depth;i++)mesh(-2.6+(i%6)*.28,3.4-Math.floor(i/6)*.53,.18,.38,colors.vision,.7);label(`${v.depth} vision blocks`,-1.9,1,3);label('1,024 patches stay',-1.9,.4,3,'#9badbf');arrow(-.65,2.3,.1,2.3,colors.vision);
+ node('Post-norm',1.8,3.1,colors.vision,2.8);node('2 × 2 downsample',1.8,1.6,colors.vision,2.8);arrow(1.8,2.6,1.8,2.1);label('1024 → 4096 channels',1.8,.65,3.3,'#9badbf');arrow(3.35,2.3,4.15,2.3,colors.vision);instances(256,16,4.5,3.8,.16,colors.vision);label('Merger MLP',5.7,.7,3);label('256 × 4096 features',5.7,.05,3.3,'#f3bc6d');
+ node('Text',-6,-2,colors.text,1.4);node('〈image start〉',-3.8,-2,colors.gray,2.5);node('256 visual features',-.2,-2,colors.vision,3.4);node('〈image end〉',3.3,-2,colors.gray,2.5);node('Text',5.7,-2,colors.text,1.4);arrow(5.7,-.35,5.7,-1.4,colors.vision);label('Replace repeated image placeholders in the embedding sequence',0,-3.05,12,'#dce8f2');label('VIDEO: temporal patches → same encoder; image placeholders + frame timestamps inside video markers',0,-4.15,16,'#9badbf',22);paths=[[-6,2.3],[-1.9,2.3],[1.8,1.6],[-.2,-2]];
+}
+function buildLayerStack(){
+ for(let i=0;i<t.num_hidden_layers;i++){const x=-6.8+(i%9)*1.7,y=3.5-Math.floor(i/9)*1.65,sparse=t.layer_types[i]==='deepseek_sparse_attention';const m=mesh(x,y,1.02,.62,sparse?colors.sparse:colors.linear,.45,sparse);m.userData.layer=i;selectable.push(m);if(i===state.layer){const ring=new THREE.Mesh(new THREE.TorusGeometry(.64,.035,6,40),new THREE.MeshBasicMaterial({color:0xffffff}));ring.position.set(x,y,.18);root.add(ring)}label(String(i+1).padStart(2,'0'),x,y,1,'#07151b',28);label(`index ${i}`,x,y-.64,1.52,'#b7c9d7',22);if(i%9<8)arrow(x+.61,y,x+1.05,y);}
+ label('K = KDA rectangle     S = sparse MLA diamond     i = zero-based index',0,-4.75,13,'#9badbf');paths=[[-6.8,3.5],[-1.7,3.5],[-6.8+(state.layer%9)*1.7,3.5-Math.floor(state.layer/9)*1.65],[6.8,-3.1]];
+}
+function buildExplodedBlock(){
+ const sparse=t.layer_types[state.layer]==='deepseek_sparse_attention',moe=t.mlp_layer_types[state.layer]==='sparse';
+ sequence(['mHC collapse','RMSNorm',sparse?'Sparse MLA':'KDA attention','Expand + mix'],3.5,sparse?colors.sparse:colors.linear);
+ for(let i=0;i<t.hc_mult;i++)line([[-7.4,4.5+i*.18],[7.5,4.5+i*.18],[7.5,3.5]],colors.gray);label('Four residual streams · learned collapse, expansion and mixing',0,5.7,12,'#9badbf');
+ label(sparse?'Query + indexer → pool scores → raw indices → latent KV':'Q / K / V → short convolution → KDA recurrent state',0,2.3,15,sparse?'#b79afa':'#58dbcd');
+ sequence(['mHC collapse','RMSNorm',moe?'Router + shared':'Dense FFN','Expand + mix'],.8,colors.moe);line([[7.75,3.5],[8,3.5],[8,1.65],[-7.9,1.65],[-7.9,.8],[-7.7,.8]],colors.gray);arrow(6,.3,6,-.4);
+ if(moe){const selected=Array.from({length:t.num_experts_per_tok},(_,i)=>(i*37+state.stage*19)%t.n_routed_experts);instances(t.n_routed_experts,24,-5.9,-1.55,.31,0x26483c,selected);label(`${t.num_experts_per_tok} selected / ${t.n_routed_experts} routed experts`,-2.3,-.75,6,'#92dfaa');selected.forEach((id,i)=>{const x=-5.9+(id%24)*.31,y=-1.55-Math.floor(id/24)*.31;line([[2,.35],[x,y]],colors.moe);});node('1 shared',4.3,-2,colors.moe,2.3);label('Always participates',4.3,-2.8,3.5,'#9badbf');label('Synthetic router scores',4.4,-3.7,3.5,'#9badbf');label(selected.slice(0,4).map((id,i)=>`${id}: ${(0.94-i*.07-state.stage*.01).toFixed(2)}`).join('  '),4.4,-4.3,4.9,'#92dfaa',20);label(selected.slice(4).map((id,i)=>`${id}: ${(0.65-i*.06-state.stage*.01).toFixed(2)}`).join('  '),4.4,-4.85,4.9,'#92dfaa',20)}else{node('Dense transformation',0,-2,colors.moe,5);label('No expert routing in this layer',0,-3.2,8,'#9badbf')}
+ paths=[[-6,3.5],[2,3.5],[2,.8],[6,.8]];
+}
+function buildCacheView(){
+ const n=12+(state.phase==='decode'?state.decode+1:0),display=Math.min(n,24);label(state.phase==='prefill'?'PREFILL · text + visual prefix':`DECODE · ${state.decode+1} new token${state.decode?'s':''}`,0,4.6,10);
+ for(let i=0;i<12;i++)mesh(-6+i*.48,3.6,.34,.38,i>2&&i<8?colors.vision:colors.text,.2);if(state.phase==='decode'){mesh(.2,3.6,.45,.48,colors.text,.3);label('+ 1',1.1,3.6,1.1)}arrow(-3.3,3.1,-3.3,2.2,colors.linear);arrow(1.5,3.1,3.5,2.2,colors.sparse);
+ label('KDA / BOUNDED STATE',-4.3,1.7,5,'#58dbcd');for(let i=0;i<4;i++){const m=mesh(-5.8+i*.85,.6,.62,1.15,colors.linear,.5);m.material.emissive.setHex(i===state.stage?0x176c63:0);}label('Recurrent + convolution',-4.5,-.5,5);label('Same shape; updated values',-4.5,-1.1,5,'#9badbf');
+ label('MLA / PER-TOKEN STORAGE',3.8,1.7,6,'#b79afa');for(let i=0;i<display;i++){mesh(.7+i*.27,.9,.19,.8,colors.sparse,.25);mesh(.7+i*.27,-.2,.19,.35,colors.gray,.2)}label(`Latent KV · ${n} illustrative positions`,3.8,.22,6,'#dce8f2',21);label('Indexer material · per token',3.8,-.85,5,'#9badbf');
+ arrow(3.8,-1.2,3.8,-1.8,colors.sparse);for(let i=0;i<Math.floor(display/t.index_kpool);i++)mesh(1+i*.95,-2.2,.66,.42,i===state.stage%Math.floor(display/t.index_kpool)?colors.sparse:colors.gray,.3);label('4-to-1 weighted candidate scoring',3.8,-3,6,'#b79afa');label('Selected pools → raw indices + tail → read latent KV',0,-4.2,14);label(`${t.index_topk} + ≤ ${t.index_kpool-1} tail · ${$('precision').value} optional serving precision · sample cells, not actual cache size`,0,-4.85,15,'#9badbf',22);paths=[[-3.3,3.6],[-4.5,.6],[3.8,-2.2],[3.8,.9]];
+}
+function disposeRoot(){if(!root)return;const geometries=new Set(),materials=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry&&o.geometry!==boxGeometry&&o.geometry!==diamondGeometry)geometries.add(o.geometry);if(o.material)for(const m of Array.isArray(o.material)?o.material:[o.material]){materials.add(m);if(m.map)textures.add(m.map)}});geometries.forEach(g=>g.dispose());textures.forEach(x=>x.dispose());materials.forEach(m=>m.dispose());scene.remove(root)}
+function rebuild(){updateText();if(!viewAvailable)return;disposeRoot();root=new THREE.Group();scene.add(root);selectable=[];paths=[];({overview:buildOverview,vision:buildVisionPath,stack:buildLayerStack,block:buildExplodedBlock,cache:buildCacheView})[state.view]();token=new THREE.Mesh(new THREE.SphereGeometry(.14,12,8),new THREE.MeshBasicMaterial({color:0xffffff}));root.add(token);moveToken(0);render()}
+function moveToken(progress){if(!token||!paths.length)return;const a=paths[state.stage],b=paths[(state.stage+1)%paths.length];token.position.set(a[0]+(b[0]-a[0])*progress,a[1]+(b[1]-a[1])*progress,.85)}
+function resize(){if(!viewAvailable)return;const w=Math.max(680,viewport.clientWidth),h=viewport.clientHeight;renderer.setSize(w,h);renderer.setPixelRatio(Math.min(devicePixelRatio,2));camera.aspect=w/h;camera.updateProjectionMatrix();render()}
+function render(){if(!viewAvailable)return;const distance=Math.max(20,10/(Math.tan(THREE.MathUtils.degToRad(19))*camera.aspect));camera.position.set(distance*Math.sin(yaw)*Math.cos(pitch)/zoom,distance*Math.sin(pitch)/zoom,distance*Math.cos(yaw)*Math.cos(pitch)/zoom);camera.lookAt(0,0,0);renderer.render(scene,camera)}
+function advance(){state.stage=(state.stage+1)%4;if(state.view==='cache'&&state.phase==='decode'&&state.stage===0)state.decode=Math.min(state.decode+1,11);rebuild()}
+function animate(now){frame=requestAnimationFrame(animate);if(!viewAvailable||document.hidden)return;if(state.playing){if(!lastTick)lastTick=now;clockTime+=now-lastTick;lastTick=now;if(clockTime>=1800){clockTime=0;advance()}if(!state.reduced)moveToken(clockTime/1800);render()}else lastTick=0}
+// 4. Controls. Every diagram choice has an equivalent native HTML control.
+function bindCamera(){let drag=null;const canvas=renderer.domElement;canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'&&innerWidth<=760)return;drag={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,moved:false};canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!drag)return;if(Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>5)drag.moved=true;yaw=Math.max(-.6,Math.min(.6,yaw+(e.clientX-drag.x)*.004));pitch=Math.max(-.45,Math.min(.45,pitch+(e.clientY-drag.y)*.004));drag.x=e.clientX;drag.y=e.clientY;render()});canvas.addEventListener('pointerup',e=>{if(drag&&!drag.moved){const r=canvas.getBoundingClientRect(),ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);const hit=ray.intersectObjects(selectable)[0];if(hit){state.layer=hit.object.userData.layer;if(state.view==='overview')state.view='stack';rebuild()}}drag=null});canvas.addEventListener('pointercancel',()=>drag=null);canvas.addEventListener('wheel',e=>{e.preventDefault();setZoom(zoom*(e.deltaY>0?.9:1.1))},{passive:false})}
+function setZoom(value){zoom=Math.max(.65,Math.min(2.2,value));render()}
+function resetCamera(){yaw=0;pitch=0;zoom=1;render()}
+$('zoom-in').onclick=()=>setZoom(zoom*1.15);$('zoom-out').onclick=()=>setZoom(zoom/1.15);$('reset').onclick=resetCamera;
+viewport.addEventListener('keydown',e=>{if(!viewAvailable)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-'].includes(e.key)){e.preventDefault();if(e.key==='ArrowLeft')yaw-=.08;if(e.key==='ArrowRight')yaw+=.08;if(e.key==='ArrowUp')pitch-=.08;if(e.key==='ArrowDown')pitch+=.08;if(e.key==='+'||e.key==='=')setZoom(zoom*1.1);if(e.key==='-')setZoom(zoom/1.1);yaw=Math.max(-.6,Math.min(.6,yaw));pitch=Math.max(-.45,Math.min(.45,pitch));render()}});
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{state.view=b.dataset.view;state.stage=0;clockTime=0;resetCamera();rebuild()});
+t.layer_types.forEach((type,i)=>{const o=document.createElement('option');o.value=i;o.textContent=`Layer ${i+1} · index ${i} · ${type==='linear_attention'?'KDA':'Sparse MLA'} · ${t.mlp_layer_types[i]==='dense'?'dense':'MoE'}`;$('layer').append(o)});
+$('layer').onchange=()=>{state.layer=Number($('layer').value);rebuild()};$('previous').onclick=()=>{state.layer=Math.max(0,state.layer-1);rebuild()};$('next').onclick=()=>{state.layer=Math.min(t.num_hidden_layers-1,state.layer+1);rebuild()};
+$('play').onclick=()=>{state.playing=!state.playing;clockTime=0;lastTick=0;updateText();if(!viewAvailable&&state.playing){state.playing=false;updateText();$('status').textContent='Use Step to follow the readable flow while 3D is unavailable.'}};
+$('step').onclick=()=>{state.playing=false;clockTime=0;advance()};
+$('motion').checked=state.reduced;$('motion').onchange=()=>{state.reduced=$('motion').checked;state.playing=false;clockTime=0;rebuild()};matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',e=>{state.reduced=e.matches;$('motion').checked=e.matches;state.playing=false;rebuild()});
+document.querySelectorAll('[data-phase]').forEach(b=>b.onclick=()=>{state.phase=b.dataset.phase;state.stage=0;state.decode=0;clockTime=0;rebuild()});$('precision').onchange=rebuild;document.addEventListener('visibilitychange',()=>{lastTick=0});
+$('source-ledger').innerHTML=`<p>Verified ${sourceMeta.checked}. Checkpoint revision: <code>${sourceMeta.checkpoint}</code>. Transformers revision: <code>${sourceMeta.transformers}</code>. Source data is embedded; the page makes no model or data requests.</p><ul><li><a href="${sources.config}">Pinned checkpoint configuration</a>: layer/MLP arrays, KDA heads and convolution, sparse/indexer ranks, experts, mHC, vision dimensions and auxiliary MTP count.</li><li><a href="${sources.processor}">Pinned processor configuration</a>: image bounds, video FPS and temporal patches. These are processor settings; 448 pixels is the nominal vision configuration, not a universal input size.</li><li><a href="${sources.model}">Pinned model implementation</a>: vision operation order, mHC collapse before RMSNorm, placeholder replacement, sequential default language positions, sparse candidate expansion and tail handling.</li><li><a href="${sources.processing}">Pinned multimodal processor</a>: video frames reuse image placeholders, boundaries and timestamps. Image placeholder ID ${modelSpec.image_token_id}; configured video ID ${modelSpec.video_token_id} is not directly substituted in this path. Image boundaries ${modelSpec.image_start_token_id}/${modelSpec.image_end_token_id}; video boundaries ${modelSpec.video_start_token_id}/${modelSpec.video_end_token_id}.</li><li><a href="${sources.cache}">Reference cache implementation</a>: recurrent/conv state and per-token latent/indexer storage are distinct structures.</li><li><a href="${sources.card}">Official model card</a>: approximate 320B total / 18B active parameters and native multimodal framing.</li><li><a href="${sources.docs}">Transformers documentation</a> and <a href="${sources.recipe}">vLLM serving recipe</a> (checked ${sourceMeta.checked}, moving pages): Transformers omits MTP; vLLM can execute the checkpoint’s auxiliary MTP layer and exposes hybrid cache management and hardware-dependent precision choices.</li><li><a href="${sources.article}">Z.ai architecture article</a>: background reference from the plan. Unavailable during verification; the implemented claims rely on the pinned configuration and implementation above.</li></ul><p><strong>Discrepancies and boundaries.</strong> The current Transformers documentation lists a default IndexPool size of 16; this checkpoint configures 4. The reference indexer selects up to 2,048 raw positions plus up to three always-included tail positions (mask width up to 2,051; padding and causality may reduce valid entries). Pooling affects candidate scoring, not the length of the latent KV cache. Serving frameworks may store state differently. MTP is an auxiliary checkpoint layer outside the 45-layer backbone, with optional execution. FP8/BF16 badges explain serving choices and do not promise support on every device.</p><p>Shapes, routes, sample cache cells and timing are educational abstractions. No tensor kernels, model weights, outputs or performance measurements are simulated. KDA’s bounded state and sparse retrieval reduce long-context work, but sparse storage still grows with token count. The configured position limit is not a guarantee of uniform quality at every length.</p>`;
+updateText();window.addEventListener('DOMContentLoaded',initScene);
+</script>
+</body>
+</html>

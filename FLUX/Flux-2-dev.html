@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f3ef">
+<title>Inside FLUX.2 — An interactive architecture field guide</title>
+<style>
+:root{color-scheme:light;--paper:#f4f3ef;--ink:#202b2a;--muted:#67716d;--line:#d8dcd4;--green:#386d4b;--dark:#101c24;--cyan:#73dce9;--amber:#efb964;--violet:#b5a0f3;--blue:#88b9f3;--mint:#8ad7a2}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 Arial,Helvetica,sans-serif}
+button,input,select{font:inherit}
+button,a,input,select{-webkit-tap-highlight-color:transparent}
+button,select{min-height:44px}
+button{cursor:pointer;color:inherit;background:none;border:1px solid var(--line);border-radius:6px;padding:9px 14px}
+button:hover{background:#e9ece4}
+button:disabled{opacity:.35;cursor:default}
+button[aria-pressed=true]{background:#e1e9dc;border-color:#91a48b;color:#264b32}
+a{color:var(--green);text-underline-offset:3px}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:3px solid #478eaa;outline-offset:4px}
+h1,h2,h3,p{margin:0}
+button svg{vertical-align:middle}
+ .mono,.eyebrow{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.eyebrow{text-transform:uppercase;letter-spacing:1.8px;font-size:11px;font-weight:600}
+.muted{color:var(--muted)}
+.skip{position:absolute;top:-80px;left:16px;z-index:10;padding:12px;background:white}
+.skip:focus{top:10px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+
+header{border-bottom:1px solid var(--line)}
+.topbar{max-width:1540px;margin:auto;display:flex;justify-content:space-between;align-items:center;padding:19px 36px;gap:18px}
+.brand{display:flex;align-items:center;gap:12px;font-size:14px;font-weight:bold;letter-spacing:.2px}
+.brand-mark{width:28px;height:28px;background:var(--ink);color:white;display:grid;place-items:center;font:22px Georgia;transform:rotate(-5deg);border-radius:4px}
+.toplinks{display:flex;gap:24px;align-items:center;font-size:12px}
+.toplinks a{text-decoration:none;color:var(--muted)}
+.edition{border:1px solid var(--line);border-radius:30px;padding:5px 12px;font-size:10px;letter-spacing:1px}
+
+main{max-width:1540px;margin:auto;padding:34px 36px 0}
+.intro{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;margin-bottom:27px}
+.intro .eyebrow{color:var(--green);margin-bottom:9px}
+h1{font-size:clamp(32px,4vw,49px);font-weight:500;letter-spacing:-2px;line-height:1.12}
+h1 span{font-family:Georgia,serif;font-style:italic;font-weight:normal}
+.intro p{color:var(--muted);margin-top:13px;max-width:650px}
+.model-tag{font:12px ui-monospace,monospace;color:var(--green);border:1px solid #c5d0bf;border-radius:4px;padding:7px 11px;white-space:nowrap}
+.chapter-nav{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:26px;background:#f9f9f6}
+.chapter-nav a{display:flex;align-items:center;gap:9px;padding:15px 12px;min-height:54px;border-right:1px solid var(--line);text-decoration:none;color:var(--muted);font-size:12px;white-space:nowrap}
+.chapter-nav a:last-child{border:0}
+.chapter-nav a:hover{background:#e9ece4}
+.chapter-nav a[aria-current=step]{background:var(--ink);color:white}
+.chapter-nav .num{font:11px ui-monospace,monospace;opacity:.7}
+.chapter-heading{display:flex;justify-content:space-between;align-items:center;gap:22px;margin-bottom:20px}
+.chapter-heading h2{font-size:24px;font-weight:500;letter-spacing:-.7px}
+.chapter-heading p{color:var(--muted);font-size:13px;margin-top:5px}
+.tour-buttons{display:flex;gap:7px;flex-shrink:0}
+.tour-buttons button{padding:8px 14px;font-size:12px}
+.tour-buttons #next{background:var(--ink);color:white;border-color:var(--ink)}
+
+.workbench{display:grid;grid-template-columns:minmax(0,1fr) 300px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fbfbf8}
+.visual-column{min-width:0;background:var(--dark)}
+.toolbar{display:flex;justify-content:space-between;gap:10px;padding:14px 18px;border-bottom:1px solid #ffffff13;color:#c5d1d5;font-size:11px;align-items:center;flex-wrap:wrap}
+.toolbar label{display:flex;align-items:center;gap:8px}
+.toolbar select{background:#1d2c34;color:#e6eced;border:1px solid #34444c;border-radius:4px;padding:5px 8px;font-size:11px}
+.toolbar button{color:#cfdbdf;border-color:#34444c;font-size:11px;padding:6px 10px}
+.toolbar button:hover{background:#2b3b41}
+.toolbar button[aria-pressed=true]{background:#284640;color:#baf0ca;border-color:#42755b}
+.toolbar-group{display:flex;align-items:center;gap:10px}
+.scene-shell{position:relative;height:435px;overflow:hidden;background:radial-gradient(ellipse at 50% 60%,#21343e 0%,#101c24 75%)}
+#scene{display:block;width:100%;height:100%;touch-action:none}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.node-label{position:absolute;transform:translate(-50%,0);color:#dde7e9;font-size:11px;line-height:1.4;text-align:center;white-space:nowrap;max-width:180px;text-shadow:0 1px 5px #071016;pointer-events:none}
+.node-label strong{font-weight:500;display:block}
+.node-label small{display:block;font:9px/1.7 ui-monospace,monospace;color:#91a5b1}
+.scene-shell.compact .node-label{white-space:normal;width:138px;max-width:43%;font-size:11px}
+.scene-shell.compact .node-label small{font-size:9px}
+.node-label.selected strong{color:#d3f0bc}
+.scene-heading{position:absolute;left:20px;top:17px;color:#8ea1aa;font:10px ui-monospace,monospace;letter-spacing:1px;pointer-events:none}
+.scene-heading b{font-weight:400;color:#cfe0dd}
+.scene-hint{position:absolute;bottom:17px;left:20px;color:#97abb3;font-size:10px;pointer-events:none}
+.scene-status{position:absolute;right:20px;top:17px;color:#99c59f;font:10px ui-monospace,monospace}
+.fallback{position:absolute;inset:90px 25px auto;background:#1e3039;border:1px solid #4b5c63;border-radius:8px;padding:24px;color:#e2ebeb;text-align:center}
+.fallback p{font-size:13px;color:#b7c7cc;margin:8px 0}
+.fallback a{color:#b7e3bc}
+.legend{display:flex;gap:18px;flex-wrap:wrap;padding:12px 20px;border-top:1px solid #ffffff12;color:#aebfc7;font-size:10px}
+.legend span{display:flex;gap:7px;align-items:center}
+.key{display:inline-block;width:8px;height:8px;border-radius:1px;background:var(--cyan)}
+.key.target{background:var(--amber)}
+.key.reference{background:var(--violet);border-left:3px solid white}
+.key.condition{background:transparent;border:2px solid var(--mint);border-radius:50%}
+.key.cache{background:var(--blue);border-bottom:2px solid white}
+.playback{padding:16px 20px;color:#cfdbdf;border-top:1px solid #ffffff12;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px}
+.playback button{color:#d6e1e6;border-color:#3b4c54;font-size:12px;min-width:86px}
+.playback button:hover{background:#2b3b41}
+.scrub-label{display:flex;justify-content:space-between;gap:12px;font-size:10px;color:#aebdc3}
+input[type=range]{width:100%;accent-color:#bdd69e;min-height:30px;margin:0;cursor:pointer}
+.time{font:12px ui-monospace,monospace;color:#bada9e}
+.inspector{padding:25px 23px;display:flex;flex-direction:column;min-width:0}
+.inspector>.eyebrow{color:#778273;margin-bottom:18px}
+.inspector h3{font-weight:500;font-size:25px;letter-spacing:-.7px;line-height:1.2;margin-bottom:10px}
+.inspector .description{font-size:13px;line-height:1.7;color:#5e6863}
+.shape{background:#edf0e8;border:1px solid #dee4d7;border-radius:5px;padding:13px;margin:20px 0 15px;font:12px/1.7 ui-monospace,monospace;color:#3f5f40;overflow-wrap:anywhere}
+.fact-label{font:9px/1.6 ui-monospace,monospace;color:#68785f;display:flex;gap:6px;align-items:center}
+.fact-label:before{content:'✓';border:1px solid #a7b29f;border-radius:50%;width:13px;height:13px;text-align:center;line-height:12px}
+.inspector .source-link{font-size:11px;display:inline-block;padding:12px 0}
+.inspector .takeaway{border-top:1px solid var(--line);padding-top:17px;margin-top:auto;font-size:12px;color:#5a655d}
+.takeaway b{display:block;color:#2c3b2f;font-size:11px;margin-bottom:6px}
+.inspect-button{margin:12px 0 20px;text-align:left;font-size:12px;color:#386d4b}
+.component-row{display:flex;align-items:flex-start;gap:16px;padding:17px 0 20px;border-bottom:1px solid var(--line)}
+.component-row>.eyebrow{color:var(--muted);padding-top:14px;font-size:9px;white-space:nowrap}
+.component-buttons{display:flex;gap:6px;flex-wrap:wrap}
+.component-buttons button{font-size:11px;padding:7px 12px}
+.view-tabs{display:flex;gap:6px;margin-top:10px}
+.view-tabs button{font-size:11px}
+.note{font-size:11px;color:var(--muted);margin:14px 0 30px;display:flex;justify-content:space-between;gap:18px}
+.note span:first-child{max-width:780px}
+.lesson-bottom{display:grid;grid-template-columns:1fr 1fr 1fr;gap:30px;margin:28px 0 40px}
+.metric{border-left:1px solid var(--line);padding-left:22px}
+.metric:first-child{border-left:0;padding-left:0}
+.metric .eyebrow{color:var(--muted);font-size:10px}
+.metric strong{font:30px/1.5 Georgia,serif;display:block}
+.metric p{font-size:12px;color:var(--muted)}
+.reading{border-top:1px solid var(--line);padding:30px 0}
+.reading-header{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:20px}
+.reading h2{font-weight:500;font-size:23px;letter-spacing:-.6px}
+.reading-header span{font-size:11px;color:var(--muted)}
+.outline{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.outline details{background:#fafaf7;border:1px solid var(--line);border-radius:6px;padding:0 18px}
+.outline summary{font-weight:500;cursor:pointer;padding:15px 0;min-height:52px}
+.outline p{font-size:13px;color:#5b665f;margin:0 0 13px}
+.outline code{font-size:11px;overflow-wrap:anywhere}
+.outline .sources{font-size:11px}
+.glossary{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:24px}
+.glossary dt{font-size:12px;font-weight:bold}
+.glossary dd{font-size:12px;color:var(--muted);margin:5px 0 0}
+.source-list{font-size:12px;display:flex;flex-wrap:wrap;gap:12px 25px;margin:16px 0}
+footer{border-top:1px solid var(--line);padding:22px 0 28px;font:10px ui-monospace,monospace;color:var(--muted);display:flex;justify-content:space-between;gap:16px}
+[hidden]{display:none!important}
+
+@media(min-width:1450px){.scene-shell{height:485px}
+.workbench{grid-template-columns:minmax(0,1fr) 330px}
+}
+@media(max-width:1100px){main{padding:24px 22px 0}
+.topbar{padding:16px 22px}
+.chapter-nav a{flex-direction:column;gap:3px;padding:10px 4px;font-size:10px}
+.workbench{grid-template-columns:minmax(0,1fr) 265px}
+.inspector{padding:20px 18px}
+.node-label{font-size:10px}
+.node-label small{font-size:8px}
+.scene-shell{height:420px}
+}
+@media(max-width:780px){.workbench{grid-template-columns:1fr}
+.inspector{display:block}
+.inspector .takeaway{margin-top:15px}
+.scene-shell{height:420px}
+.chapter-heading{align-items:flex-start}
+.chapter-heading p{max-width:420px}
+.tour-buttons{gap:5px}
+.intro{align-items:flex-start}
+.intro p{font-size:13px}
+.model-tag{display:none}
+.outline{grid-template-columns:1fr}
+.glossary{grid-template-columns:1fr 1fr}
+.shape{margin-top:15px}
+.inspector h3{font-size:23px}
+.inspector>.eyebrow{margin-bottom:9px}
+.component-row{display:block}
+.component-row>.eyebrow{margin-bottom:8px}
+.note{display:block}
+.note span{display:block}
+.note span+span{margin-top:5px}
+}
+@media(max-width:480px){main{padding:23px 14px 0}
+.topbar{padding:14px}
+.edition{display:none}
+.toplinks{gap:12px}
+.chapter-nav{grid-template-columns:repeat(4,1fr);margin-bottom:20px}
+.chapter-nav a{flex-direction:row;min-height:44px;border-bottom:1px solid var(--line)}
+.chapter-heading{display:block}
+.tour-buttons{margin-top:12px}
+.chapter-heading h2{font-size:23px}
+h1{font-size:36px}
+.scene-shell{height:390px}
+.toolbar{padding:10px 12px}
+.toolbar-group{gap:6px}
+.toolbar label>span{display:none}
+.legend{padding:11px 12px;gap:10px}
+.playback{padding:12px;gap:10px;grid-template-columns:auto 1fr}
+.time{grid-column:2}
+.lesson-bottom{gap:15px}
+.metric{padding-left:12px}
+.metric strong{font-size:25px}
+.metric p{font-size:11px}
+.metric .eyebrow{font-size:8px}
+.node-label{font-size:9px}
+.node-label small{font-size:8px}
+.scene-hint{font-size:9px;left:12px}
+.scene-heading{left:12px}
+.scene-status{right:12px}
+.reading-header{display:block}
+.reading-header span{display:block;margin-top:6px}
+footer{flex-direction:column}
+}
+
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}
+}
+
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<a class="skip" href="#explanation">Skip to the architecture explanation</a>
+<header><div class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">ƒ</span> FIELDNOTES <span class="muted" style="font-weight:normal">/ Machine learning</span></div><div class="toplinks"><a href="#explanation">Reading guide ↗</a><span class="edition mono">INTERACTIVE EXPLAINER · 001</span></div></div></header>
+<main>
+<section class="intro"><div><div class="eyebrow">Inside the architecture</div><h1>From a few words <span>to an image.</span></h1><p>Explore FLUX.2 [dev], one connection at a time. Follow the text, look inside the transformer, and watch noise become structure.</p></div><div class="model-tag">FLUX.2 [dev] / 32B backbone</div></section>
+<nav class="chapter-nav" aria-label="Guided chapters"><a href="#overview" aria-current="step"><span class="num">01</span>Overview</a><a href="#prompt"><span class="num">02</span>Prompt path</a><a href="#transformer"><span class="num">03</span>Transformer</a><a href="#attention"><span class="num">04</span>Attention</a><a href="#denoising"><span class="num">05</span>Denoising</a><a href="#kv-cache"><span class="num">06</span>KV cache</a><a href="#decode"><span class="num">07</span>Decode</a></nav>
+<section aria-labelledby="chapter-title"><div class="chapter-heading"><div><h2 id="chapter-title">01 — The whole picture</h2><p id="chapter-description">Three kinds of information. One iterative journey from noise to image.</p></div><div class="tour-buttons"><button id="previous" disabled>← Previous</button><button id="next">Next chapter →</button></div></div>
+<div class="workbench"><div class="visual-column"><div class="toolbar"><div class="toolbar-group"><label><span>MODE</span><select id="mode" aria-label="Generation mode"><option value="generate">Text to image</option><option value="edit">Reference editing</option></select></label><button id="detail" aria-pressed="false">Tensor details</button></div><button id="reset">↺ Reset view</button></div>
+<div class="scene-shell"><canvas id="scene" aria-label="Interactive three-dimensional FLUX.2 architecture" aria-describedby="visual-description"></canvas><div id="labels" aria-hidden="true"></div><div class="scene-heading" aria-hidden="true">FLOW MAP <b id="map-name">/ OVERVIEW</b></div><div id="scene-status" class="scene-status">LOADING 3D</div><div class="scene-hint" id="visual-description">Drag to orbit · Scroll to zoom · Select a component to explore</div><div id="fallback" class="fallback"><strong>Explore the architecture in the reading guide.</strong><p id="fallback-text">The interactive scene is loading. All explanations are also available below.</p><a href="#explanation">Open the full text explanation ↓</a></div></div>
+<div class="legend" aria-label="Diagram legend"><span><i class="key"></i>Text</span><span><i class="key target"></i>Target latent</span><span><i class="key reference"></i>Reference</span><span><i class="key condition"></i>Conditioning</span><span><i class="key cache"></i>Cached K/V</span></div>
+<div class="playback"><button id="play" aria-pressed="false">▶ Play</button><div><label class="scrub-label" for="step"><span id="step-label">DENOISING STEP</span><output id="step-output" for="step">0 / 50</output></label><input id="step" type="range" min="0" max="50" value="0" step="1" aria-label="Denoising step"><div class="scrub-label"><span>Noise</span><span>Structured latent</span></div></div><span id="time" class="time">t = 1.000</span></div></div>
+<aside class="inspector" aria-labelledby="inspector-title"><div class="eyebrow">Component inspector</div><h3 id="inspector-title">The flow transformer</h3><p class="description" id="inspector-description">The text and image representations meet here. At each sampling step, the backbone predicts a velocity that updates the target latent.</p><div id="inspector-shape" class="shape">8 double-stream<br>↓ merge text + image<br>48 single-stream</div><div class="fact-label" id="confidence">Derived from reference code</div><a id="inspector-source" class="source-link" href="https://github.com/black-forest-labs/flux2/blob/main/src/flux2/model.py" target="_blank" rel="noopener noreferrer">Read the reference code ↗</a><button id="inspect" class="inspect-button">Look inside the transformer →</button><div class="takeaway"><b>THE IDEA TO TAKE WITH YOU</b><p id="takeaway">The transformer is called repeatedly. It predicts how the latent should change; the autoencoder turns the final latent into pixels.</p></div></aside></div>
+<div class="view-tabs" id="view-tabs" aria-label="Transformer views" hidden><button data-view="pipeline" aria-pressed="true">Block sequence</button><button data-view="double" aria-pressed="false">Inside a double-stream block</button><button data-view="single" aria-pressed="false">Inside a single-stream block</button></div>
+<div class="component-row"><div class="eyebrow">Explore a component</div><div id="components" class="component-buttons"></div></div>
+<div class="note"><span>Conceptual visualization: object counts, spacing, colors and timing are illustrative. No model runs here; the image grid is procedural.</span><span class="mono" id="chapter-count">CHAPTER 01 / 07</span></div>
+</section>
+<section class="lesson-bottom" aria-label="Architecture at a glance"><div class="metric"><div class="eyebrow">Flow model / backbone</div><strong>32 billion</strong><p>Parameters in FLUX.2 [dev]. The text encoder is loaded separately.</p></div><div class="metric"><div class="eyebrow">Transformer blocks</div><strong>8 + 48</strong><p>Double-stream blocks, then a unified single-stream sequence.</p></div><div class="metric"><div class="eyebrow">Attention heads</div><strong>48 × 128</strong><p>Parallel heads × dimensions per head = 6,144 hidden width.</p></div></section>
+<section id="explanation" class="reading" tabindex="-1"><div class="reading-header"><h2>The architecture, in words.</h2><span>A complete companion to the interactive scene</span></div><div class="outline">
+<details open><summary>01 / From text and noise to pixels</summary><p>FLUX.2 [dev] is a 32B-parameter latent rectified-flow transformer for text-to-image generation and multi-reference editing. The 32B figure describes the flow backbone, not the entire pipeline with its separate 24B Mistral text model.</p><p>A prompt becomes text features. A seeded Gaussian sample initializes the target latent. Optional reference RGB images pass through the autoencoder’s encoder and become additional image tokens. The transformer repeatedly predicts target-latent changes. Only after sampling finishes does the decoder map the final latent to RGB.</p><p>Reference latents are fixed conditioning inputs; the target latent changes at each step. Reference representations inside the transformer are recomputed in standard [dev] editing.</p><p class="sources">Documented / derived: <a href="https://huggingface.co/black-forest-labs/FLUX.2-dev">BFL model card</a> · <a href="https://github.com/black-forest-labs/flux2/blob/main/src/flux2/sampling.py">Sampling implementation</a></p></details>
+<details><summary>02 / The prompt becomes a sequence of vectors</summary><p>Optional Mistral prompt upsampling expands the wording before embedding. The reference loader uses Mistral-Small-3.2-24B-Instruct-2506 weights with the compatible Mistral-Small-3.1-24B-Instruct-2503 processor (Mistral/Pixtral and Tekken tokenization). Chat-formatted input is padded/truncated to 512 token positions for embedding.</p><p>Returned hidden-state tuple indices 10, 20 and 30 each provide 5,120 values per token. Concatenating them gives 15,360 values. A learned linear projection maps that to the transformer’s width of 6,144. These indices refer to the returned tuple, not human-counted layer numbers.</p><p>The embedding pass sets <code>use_cache=False</code>. Optional prompt generation can use an autoregressive language-model cache; that is separate from reference-image KV caching.</p><p class="sources">Derived: <a href="https://github.com/black-forest-labs/flux2/blob/main/src/flux2/text_encoder.py">Text encoder</a> · <a href="https://huggingface.co/mistralai/Mistral-Small-3.2-24B-Instruct-2506/blob/main/config.json">Mistral configuration</a></p></details>
+<details><summary>03 / Separate streams, shared attention</summary><p>Image tokens project from 128 to 6,144 values. In each of 8 double-stream blocks, text and image have separate normalization, QKV projections and SiLU-gated feed-forward paths. Q, K and V concatenate along the token axis for joint self-attention. The attention output splits back into text and image paths, each with gated residual updates.</p><p>The text and image sequences then merge. Each of 48 single-stream blocks uses a fused input projection for Q/K/V and MLP inputs. Attention and a parallel SiLU-gated MLP reunite through an output projection and gated residual. The MLP ratio is 3.0.</p><p>Timestep and guidance embeddings supply modulation (shift, scale and gates). The final layer removes text, normalizes and projects the image sequence back to width 128. In standard editing, the sampler then slices away reference predictions and updates only the target.</p><p class="sources">Derived: <a href="https://github.com/black-forest-labs/flux2/blob/main/src/flux2/model.py">Transformer implementation</a> · <a href="https://github.com/black-forest-labs/flux2/blob/main/src/flux2/sampling.py">Target selection in sampling</a></p></details>
+<details><summary>04 / What happens inside attention?</summary><p>Q is a query: what a token is looking for. K is a key: what a token can match. V is a value: the information it contributes. FLUX.2 uses 48 heads with 128 dimensions per head. Q and K receive RMS-based QK normalization, followed by rotary position embeddings (RoPE).</p><p>Four position axes <code>(t, h, w, l)</code> each receive 32 RoPE dimensions, with theta 2000. Text varies along l, image tokens along h/w, and different references receive different t coordinates. This position t is distinct from the denoising timestep.</p><p>Each head computes <code>softmax(QKᵀ / √128)V</code>: scaled similarity, normalized weights, then a weighted value sum. The heads join and project back to the hidden width. In standard [dev], this is joint self-attention, rather than encoder-decoder cross-attention.</p><p class="sources">Derived: <a href="https://github.com/black-forest-labs/flux2/blob/main/src/flux2/model.py">Attention, QKNorm and RoPE</a> · <a href="https://github.com/black-forest-labs/flux2/blob/main/src/flux2/sampling.py">Position coordinates</a></p></details>
+<details><summary>05 / Denoising is a repeated update</summary><p>Sampling begins at t = 1 and ends at t = 0. The reference schedule shifts timesteps using both image sequence length and step count. The default [dev] settings are 50 steps and guidance 4.0; 28 steps is a documented speed/quality tradeoff. Guidance is embedded in one model pass, rather than requiring the usual separate conditional and unconditional predictions.</p><p>At each step the model predicts velocity v. Euler integration applies <code>x_next = x_current + (t_next − t_current) × v</code>. The negative timestep difference matters. The updated latent returns to the same transformer with the next timestep.</p><p>The scrubber displays the reference schedule for a derived 1024×1024 example with 4,096 target tokens. Its colored noise-to-structure grid is an educational interpolation, not an actual learned latent, image generation or quality forecast.</p><p class="sources">Derived / documented: <a href="https://github.com/black-forest-labs/flux2/blob/main/src/flux2/sampling.py">Schedule and Euler loop</a> · <a href="https://github.com/black-forest-labs/flux2/blob/main/src/flux2/util.py">Defaults</a> · <a href="https://huggingface.co/black-forest-labs/FLUX.2-dev">Model card</a></p></details>
+<details><summary>06 / Two different reference-image paths</summary><p>Standard FLUX.2 [dev] includes target and fixed reference tokens in every denoising pass. It recomputes their projections and layer representations. It does not use the dedicated persistent reference-token KV optimization.</p><p>FLUX.2 [klein] 9B KV is a specialized model variant. Its first pass processes references and saves per-layer reference K and V. K is stored after QK normalization and RoPE; V is the value projection. Later passes omit reference tokens from the layer inputs and concatenate cached reference K/V inside attention with current text/target K/V.</p><p>This fixed bank saves repeated reference processing at a memory cost. It is not an ever-growing autoregressive cache, nor a switch that can simply be enabled on standard [dev]. The [klein] KV path also uses specialized attention masking and fixed reference modulation. The comparison uses [klein]’s four default steps; timings are not benchmarks.</p><p class="sources">Documented / derived: <a href="https://github.com/black-forest-labs/flux2/blob/main/docs/flux2_klein_kv_cache.md">BFL KV-cache note</a> · <a href="https://github.com/black-forest-labs/flux2/blob/main/src/flux2/model.py">Cache implementation</a> · <a href="https://huggingface.co/docs/diffusers/main/api/pipelines/flux2">Diffusers pipelines</a></p></details>
+<details><summary>07 / The latent becomes an RGB image</summary><p>The autoencoder uses a 32-channel base latent at 8× spatial compression (three downsampling stages). A 2×2 space-to-depth rearrangement packs nearby positions into 128 channels, followed by normalization. The effective spatial compression is 16×.</p><p>Derived example, ignoring batch: RGB <code>3×1024×1024</code> → base latent <code>32×128×128</code> → packed grid <code>128×64×64</code> → <code>4096×128</code> image tokens. Add 512 text positions for a 4,608-token joint sequence before optional references. This is a worked example, not a fixed resolution requirement.</p><p>After sampling, target tokens are scattered back to their grid. Decoding reverses normalization, performs 2×2 depth-to-space to recover the 32-channel base latent, and uses the convolutional decoder to reconstruct RGB. The visualization’s output is a procedural color grid.</p><p class="sources">Derived: <a href="https://github.com/black-forest-labs/flux2/blob/main/src/flux2/autoencoder.py">Autoencoder</a> · <a href="https://bfl.ai/techblog/representation-comparison/index.html">BFL representation report</a></p></details>
+</div><dl class="glossary"><div><dt>Latent</dt><dd>A compact learned representation of an image, rather than RGB pixels.</dd></div><div><dt>Token</dt><dd>One position in a sequence, represented by a vector of numbers.</dd></div><div><dt>Residual connection</dt><dd>A path that adds a learned change back to the existing representation.</dd></div><div><dt>Flow matching</dt><dd>Training a model to predict motion along a path between noise and data.</dd></div></dl></section>
+<section id="sources" class="reading"><div class="reading-header"><h2>Follow the source.</h2><span>Checked against primary references · 20 September 2026</span></div><p class="muted" style="font-size:12px">Exact dimensions come from reference code; model claims come from published documentation. Graphics are conceptual simplifications.</p><div class="source-list"><a href="https://github.com/black-forest-labs/flux2">BFL reference repository ↗</a><a href="https://huggingface.co/black-forest-labs/FLUX.2-dev">FLUX.2 [dev] model card ↗</a><a href="https://huggingface.co/docs/diffusers/main/api/models/flux2_transformer">Diffusers transformer ↗</a><a href="https://bfl.ai/blog/flux-2">FLUX.2 overview ↗</a></div></section>
+<footer><span>FIELDNOTES / AN INDEPENDENT LEARNING GUIDE</span><span>Built for curiosity. No weights, no inference, just the architecture.</span></footer>
+<div class="sr-only" id="announcement" aria-live="polite" aria-atomic="true"></div>
+</main>
+<script type="module">
+// 1. Source-backed dimensions. Graphics below are intentionally reduced representations.
+const ARCHITECTURE=Object.freeze({hidden:6144,heads:48,headDim:128,double:8,single:48,context:15360,textWidth:5120,textTokens:512,layers:Object.freeze([10,20,30]),axes:Object.freeze([32,32,32,32]),theta:2000,mlpRatio:3,channels:128,baseChannels:32,steps:50,guidance:4,imageTokens:4096});
+const BASE='https://github.com/black-forest-labs/flux2/blob/main/';
+const SOURCES={model:BASE+'src/flux2/model.py',text:BASE+'src/flux2/text_encoder.py',sampling:BASE+'src/flux2/sampling.py',vae:BASE+'src/flux2/autoencoder.py',cache:BASE+'docs/flux2_klein_kv_cache.md',card:'https://huggingface.co/black-forest-labs/FLUX.2-dev',defaults:BASE+'src/flux2/util.py'};
+const DERIVED='Derived from reference code',DOCUMENTED='Documented',CONCEPT='Conceptual simplification';
+// 2. Inspector content, fact status, and source attribution share stable component IDs.
+const CONTENT={
+ prompt:['Text prompt','Your words describe the image. Optional prompt upsampling can expand the wording before tokenization and embedding.','Words → optional upsampling → tokens','text','The prompt guides a latent trajectory; it is not converted directly into pixels.','prompt'],
+ upsample:['Optional upsampling','Mistral can generate a more detailed prompt. This generation stage can use a language-model KV cache, separate from image-reference caching.','Optional generated text','text','The embedding pass itself uses use_cache=False.'],
+ tokenize:['Tokenize & format','The Mistral/Pixtral processor formats the conversation and tokenizes it with Tekken. Embedding input is padded or truncated to 512 positions.','Up to 512 token positions','text','The embedding input includes the chat formatting, not just the raw words.'],
+ mistral:['Mistral text encoder','The reference loader pairs Mistral-Small-3.2-24B-Instruct-2506 weights with the compatible 3.1 processor. Intermediate features supply the prompt conditioning.','Separate 24B text model','text','The 32B backbone figure does not include this separate model.'],
+ features:['Three hidden states','Returned hidden-state tuple indices 10, 20 and 30 are concatenated per token. Each vector is 5,120 values wide.','3 × 5,120 = 15,360','text','These are tuple indices, not an ambiguous human-counted layer numbering.'],
+ textproj:['Text projection','A learned linear map changes each prompt feature vector to the width used by the flow transformer.','15,360 → 6,144','model','Projection changes feature width; it does not merge token positions.'],
+ noise:['Target latent','Generation begins with seeded Gaussian noise. The changing target is represented as a sequence of image tokens.','4,096 × 128 at 1024²','sampling','This shape is a derived example. Colored cells are a teaching metaphor.','denoising'],
+ reference:['Reference images','In editing mode, RGB references pass through the VAE encoder. Their fixed latents are appended to the target sequence at every standard [dev] sampling step.','RGB → VAE → reference tokens','sampling','The reference conditions the result; it is not regenerated as the target.','decode'],
+ encoder:['VAE encoder','Convolutional encoding reduces spatial size through three downsampling stages. The 32-channel latent is packed 2×2, then normalized.','32 channels → packed 128','vae','References use the same latent representation as the target.'],
+ core:['The flow transformer','Text and image representations meet here. At each sampling step, the backbone predicts a velocity that updates the target latent.','8 double-stream\n↓ merge text + image\n48 single-stream','model','The same backbone is called repeatedly before the final latent is decoded.','transformer'],
+ double:['Double-stream blocks','Text and image keep their own normalization, QKV and gated MLP paths. Their Q/K/V meet in joint attention, then the result splits back into modality-specific residual paths.','8 blocks · width 6,144','model','Separate processing paths can still exchange information through joint attention.','double'],
+ merge:['Merge the streams','Text and image representations concatenate along the sequence axis before entering the single-stream blocks.','512 + 4,096 = 4,608 tokens*','model','*A 1024² text-to-image example. References add more tokens, not feature width.'],
+ single:['Single-stream blocks','A fused input projection produces Q/K/V and MLP inputs. Attention and a parallel SiLU-gated MLP reunite through an output projection and gated residual.','48 blocks · MLP ratio 3.0','model','Single-stream means one combined text-and-image sequence.','single'],
+ condition:['Timestep & guidance','Embedded timestep and guidance values provide the blocks with shift, scale and gate modulation. The official [dev] guidance default is 4.0.','timestep + embedded guidance','defaults','Guidance-distilled [dev] uses one model pass per step, not a conditional/unconditional pair.'],
+ output:['Predict the velocity','Text positions are removed and the image sequence projects to 128 values per token. The sampler retains only target predictions before the Euler update.','6,144 → 128 → target slice','model','Standard editing also projects reference positions, but their predictions are discarded.'],
+ norm:['Normalize & modulate','Layer normalization and timestep/guidance modulation prepare each stream for its learned projections. Residual gates control the learned changes.','shift · scale · gate','model','Modulation adapts the computation to the current denoising step.'],
+ qkv:['Make Q, K and V','Learned projections create queries (what to find), keys (what to match), and values (what to contribute) for each token and head.','48 heads × 128 dimensions','model','Head counts are exact; the displayed objects stand for entire tensors.'],
+ qknorm:['Normalize Q & K','RMS-based QK normalization rescales queries and keys before rotary position encoding. Values do not receive this operation.','Q, K → RMS normalization','model','Normalization helps regulate the scale of attention comparisons.'],
+ rope:['Position with RoPE','Rotary embeddings rotate Q/K subspaces using four token coordinates (t, h, w, l). Text varies along l; images along h/w; references have distinct t coordinates.','(32, 32, 32, 32) · θ = 2000','model','Position t identifies image groups; it is distinct from the denoising timestep.'],
+ attention:['Joint self-attention','Queries compare against keys from the combined allowed sequence. Softmax converts scaled similarities to weights that mix values.','softmax(QKᵀ / √128) V','model','One head finds relationships in one learned subspace; 48 heads operate in parallel.','attention'],
+ weights:['Similarity → weights','For a representative query, scaled dot products with keys become normalized attention weights through softmax.','weights sum to 1 per query/head','model','The plotted connections illustrate influence, not measured attention from a real model.'],
+ values:['Mix the values','Attention weights form a weighted sum of value vectors. Heads are joined and an output projection maps the result back to the hidden width.','48 × 128 → 6,144','model','Attention mixes information across positions without changing the sequence length.'],
+ mlp:['Gated feed-forward path','A SiLU gate multiplies one projected branch by another. The MLP processes each token’s features; attention exchanges information between tokens.','MLP ratio 3.0 · SiLU gate','model','In a single-stream block, attention and MLP operate in parallel.'],
+ residual:['Residual update','The block adds its gated learned output back to the existing representation. Double-stream blocks maintain separate residual paths for text and image.','x ← x + gate × learned change','model','The existing representation remains a direct path through each block.'],
+ schedule:['Sampling schedule','The reference schedule shifts a grid from t = 1 to t = 0 according to image sequence length and step count. The scrubber uses 4,096 target tokens.','50 steps · guidance 4.0','sampling','Equal step numbers do not imply equal changes in timestep.'],
+ euler:['Euler latent update','The predicted velocity moves the current latent to the next timestep. Only the target latent is updated; reference inputs remain fixed.','x_next = x + (t_next − t) × v','sampling','The timestep difference is negative because sampling moves from 1 toward 0.'],
+ dev:['Standard [dev] editing','Each step includes the current target and reference tokens. Their Q/K/V projections and intermediate representations are recomputed.','Reference processing: every step','sampling','There is no persistent reference-token KV bank in the standard [dev] path.'],
+ extract:['First [klein] KV pass','The specialized [klein] 9B KV variant processes references once and extracts per-layer K/V. Keys are cached after normalization and RoPE.','First pass → k_ref, v_ref','cache','This comparison is a different model variant, not an optimization toggle for [dev].'],
+ bank:['Fixed reference KV bank','Later passes reuse the reference K/V while processing current text and target tokens. Cached K/V join current K/V inside attention.','Fixed bank · reused on later steps','cache','The bank saves repeated reference processing at a cache-memory cost. It does not grow with each step.'],
+ reuse:['Later [klein] KV passes','Reference tokens are omitted from layer inputs. Current queries attend using the cached reference K/V and current text/target K/V.','Current Q + [current K/V; cached K/V]','cache','Reference queries and MLP paths do not need to run again.'],
+ unpack:['Restore the spatial grid','Target tokens are scattered back to their spatial locations before the autoencoder decodes them.','4,096 × 128 → 128 × 64 × 64','sampling','All decode shapes shown use the derived 1024×1024 example.'],
+ inverse:['Undo normalization','The autoencoder reverses its stored channel normalization statistics before unpacking the latent.','128 × 64 × 64','vae','Inverse normalization precedes the depth-to-space rearrangement.'],
+ depth:['Depth to space','The inverse 2×2 rearrangement trades channel depth for spatial resolution, recovering the autoencoder’s base latent.','128 × 64 × 64 → 32 × 128 × 128','vae','Packing is a rearrangement of values, not a learned compression layer.'],
+ decoder:['Decode to pixels','The convolutional autoencoder decoder upsamples the base latent to an RGB image. It runs after the denoising loop completes.','32 × 128 × 128 → 3 × 1024 × 1024','vae','A latent is a learned representation; decoding makes it viewable as RGB.','decode'],
+ rgb:['The output image','The completed latent is decoded to RGB. This small landscape is a procedural color grid, included only to illustrate the output stage.','Illustrative RGB output','vae','No FLUX weights or inference are running in this page.']
+};
+const CHAPTERS=[
+ ['overview','The whole picture','Three kinds of information. One iterative journey from noise to image.','core'],
+ ['prompt','Words become conditioning','Follow a prompt from token positions to a sequence of rich feature vectors.','features'],
+ ['transformer','Inside the flow transformer','Separate streams share attention. Then the sequence becomes one.','double'],
+ ['attention','A closer look at attention','Each token asks a question, finds relevant information, and mixes what it learns.','attention'],
+ ['denoising','An image takes shape, step by step','Predict a velocity. Update the target latent. Return to the same transformer.','euler'],
+ ['kv-cache','What can be computed just once?','Compare standard [dev] editing with the specialized [klein] 9B KV path.','dev'],
+ ['decode','From latent space to pixels','Restore the grid, unpack the channels, and let the autoencoder reconstruct RGB.','decoder']
+];
+// 3. Application state is independent of WebGL, so all controls and text survive import failure.
+const motion=matchMedia('(prefers-reduced-motion: reduce)');
+const state={chapter:0,selected:'core',mode:'generate',detail:false,playing:false,step:0,view:'pipeline',reduced:motion.matches};
+const $=id=>document.getElementById(id);
+let graphics=null;
+let visualizationFailed=false;
+const number=n=>String(n).padStart(2,'0');
+function maxSteps(){return state.chapter===5?4:ARCHITECTURE.steps;}
+function scheduleAt(step){const n=ARCHITECTURE.imageTokens,m200=.00016927*n+.45666666,m10=.0000873809524*n+1.89833333,a=(m200-m10)/190,mu=a*50+m200-200*a,t=1-step/50;return t===0?0:t===1?1:Math.exp(mu)/(Math.exp(mu)+1/t-1);}
+function updateStep(){const max=maxSteps();$('step').max=max;$('step').value=state.step;$('step-output').textContent=`${state.step} / ${max}`;$('step-label').textContent=state.chapter===5?'COMPARISON PASS (KLEIN: 4)':'DENOISING STEP';$('step').setAttribute('aria-label',state.chapter===5?'KV comparison pass':'Denoising step');$('time').textContent=state.chapter===5?(state.step===0?'Before first pass':state.step===1?'Capture K/V':'Reuse K/V'):`t = ${scheduleAt(state.step).toFixed(3)}`;graphics?.updateLatent();graphics?.request();}
+function renderInspector(){const c=CONTENT[state.selected];$('inspector-title').textContent=c[0];$('inspector-description').textContent=c[1];$('inspector-shape').textContent=c[2];$('inspector-shape').style.whiteSpace='pre-line';$('confidence').textContent=state.selected==='rgb'?CONCEPT:['extract','bank','reuse'].includes(state.selected)?DOCUMENTED:DERIVED;$('inspector-source').href=SOURCES[c[3]];$('inspector-source').textContent=c[3]==='cache'?'Read the BFL cache note ↗':'Read the reference code ↗';$('takeaway').textContent=c[4];const target=c[5];$('inspect').hidden=!target||target===CHAPTERS[state.chapter][0]||target===state.view;$('inspect').textContent=target==='double'?'Inspect a double-stream block →':target==='single'?'Inspect a single-stream block →':'Explore this stage →';document.querySelectorAll('#components button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.node===state.selected)));graphics?.highlight(state.selected);}
+function select(id,announce=true){state.selected=id;renderInspector();if(announce)graphics?.focus(id);if(announce)$('announcement').textContent=`Selected ${CONTENT[id][0]}. ${CONTENT[id][2]}`;}
+function setPlaying(value){state.playing=value&&!state.reduced&&!visualizationFailed;$('play').setAttribute('aria-pressed',String(state.playing));$('play').textContent=state.playing?'Ⅱ Pause':'▶ Play';$('play').disabled=state.reduced||visualizationFailed;$('play').title=state.reduced?'Animation disabled by your reduced-motion preference':'';graphics?.request();}
+function openChapter(index,writeHash=true){state.chapter=Math.max(0,Math.min(6,index));state.view='pipeline';state.step=Math.min(state.step,maxSteps());const c=CHAPTERS[state.chapter];$('chapter-title').textContent=`${number(state.chapter+1)} — ${c[1]}`;$('chapter-description').textContent=c[2];$('map-name').textContent='/ '+c[0].toUpperCase();$('chapter-count').textContent=`CHAPTER ${number(state.chapter+1)} / 07`;$('previous').disabled=state.chapter===0;$('next').disabled=state.chapter===6;$('view-tabs').hidden=state.chapter!==2;$('mode').disabled=state.chapter===5;$('mode').value=state.chapter===5?'edit':state.mode;document.querySelectorAll('.chapter-nav a').forEach((el,i)=>{if(i===state.chapter)el.setAttribute('aria-current','step');else el.removeAttribute('aria-current');});document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view==='pipeline')));if(writeHash&&location.hash!=='#'+c[0])history.pushState(null,'','#'+c[0]);buildActive();select(c[3],false);updateStep();$('announcement').textContent=`Chapter ${state.chapter+1}: ${c[1]}`;}
+// 4. Layout graph: n(id,x,y,kind,color) and explicit directed edges.
+const COLORS={text:0x73dce9,target:0xefb964,reference:0xb5a0f3,condition:0x8ad7a2,cache:0x88b9f3};
+function n(id,x,y,kind='box',color='target',label=null){return{id,x,y,kind,color,label};}
+function layout(){const edit=state.mode==='edit';switch(state.chapter){
+case 0:return {nodes:[n('prompt',-11,3,'tokens','text'),n('mistral',-7,3,'stack','text'),n('noise',-11,-.4,'grid'),...(edit?[n('reference',-11,-4,'grid','reference'),n('encoder',-7,-4,'stack','reference')]:[]),n('double',-2,1,'double'),n('single',3,1,'stack'),n('condition',.5,5,'ring','condition'),n('euler',.5,-4,'ring'),n('decoder',7,1,'stack','condition'),n('rgb',11,1,'image')],edges:[['prompt','mistral'],['mistral','double','text'],['noise','double'],...(edit?[['reference','encoder','reference'],['encoder','double','reference']]:[]),['double','single'],['condition','double','condition'],['condition','single','condition'],['single','euler'],['euler','noise'],['single','decoder'],['decoder','rgb']],extra:['core']};
+case 1:return{nodes:[n('prompt',-10,3,'tokens','text'),n('upsample',-5,3,'box','text'),n('tokenize',0,3,'tokens','text'),n('mistral',5,3,'stack','text'),n('features',5,-2,'triple','text'),n('textproj',-1,-2,'stack','text')],edges:[['prompt','upsample','text'],['upsample','tokenize','text'],['tokenize','mistral','text'],['mistral','features','text'],['features','textproj','text']]};
+case 2:if(state.view==='double')return{nodes:[n('norm',-10,2,'double','text'),n('qkv',-5,2,'double','text'),n('attention',0,2,'heads','text'),n('values',5,2,'double'),n('mlp',5,-3,'double'),n('residual',-2,-3,'double')],edges:[['norm','qkv','text'],['qkv','attention','text'],['attention','values'],['values','mlp'],['mlp','residual'],['norm','residual','condition']]};
+if(state.view==='single')return{nodes:[n('norm',-10,0,'tokens','text'),n('qkv',-5,0,'triple'),n('attention',0,3,'heads','text'),n('mlp',0,-3,'stack'),n('values',5,0,'stack'),n('residual',10,0,'ring','condition')],edges:[['norm','qkv'],['qkv','attention','text'],['qkv','mlp'],['attention','values','text'],['mlp','values'],['values','residual'],['norm','residual','condition',true]]};
+return{nodes:[n('textproj',-10,3,'tokens','text'),n('noise',-10,-2,'grid'),n('double',-5,.5,'double'),n('merge',0,.5,'tokens'),n('single',5,.5,'stack'),n('output',10,.5,'grid'),n('condition',0,5,'ring','condition')],edges:[['textproj','double','text'],['noise','double'],['double','merge'],['merge','single'],['single','output'],['condition','double','condition'],['condition','single','condition']]};
+case 3:return{nodes:[n('qkv',-10,2,'triple','text'),n('qknorm',-5,2,'double','text'),n('rope',0,2,'rope','condition'),n('weights',5,2,'heads','text'),n('values',5,-3,'grid'),n('attention',-2,-3,'heads')],edges:[['qkv','qknorm','text'],['qknorm','rope','text'],['rope','weights','text'],['weights','values'],['values','attention'],['qkv','values','target',true]]};
+case 4:return{nodes:[n('noise',-8,0,'image'),n('core',0,1,'double'),n('output',8,1,'grid'),n('euler',1,-4,'ring'),n('schedule',0,5,'ring','condition'),...(edit?[n('reference',-8,5,'grid','reference')]:[])],edges:[['noise','core'],['core','output'],['output','euler'],['euler','noise'],['schedule','core','condition'],...(edit?[['reference','core','reference']]:[])]};
+case 5:return{nodes:[n('reference',-10,0,'grid','reference'),n('dev',-4,3,'double'),n('output',5,3,'grid'),n('extract',-5,-3,'triple','reference'),n('bank',0,-3,'bank','cache'),n('reuse',6,-3,'heads','cache')],edges:[['reference','dev','reference'],['dev','output'],['output','dev','target',true],['reference','extract','reference'],['extract','bank','cache'],['bank','reuse','cache']]};
+case 6:return{nodes:[n('unpack',-10,2,'grid'),n('inverse',-5,2,'grid'),n('depth',0,2,'triple'),n('decoder',5,2,'stack','condition'),n('rgb',10,2,'image'),n('encoder',4,-3,'stack','reference'),n('reference',-3,-3,'grid','reference')],edges:[['unpack','inverse'],['inverse','depth'],['depth','decoder'],['decoder','rgb'],['rgb','encoder','reference'],['encoder','reference','reference']]};
+}}
+const LABELS={prompt:'Text prompt',mistral:'Mistral encoder',noise:'Target latent',reference:'Reference images',encoder:'VAE encode + pack',double:'Double-stream ×8',single:'Single-stream ×48',condition:'Time + guidance',euler:'Euler update ↺',decoder:'VAE decoder',rgb:'RGB image',features:'Hidden states 10 / 20 / 30',textproj:'Text projection',tokenize:'Tokenizer',upsample:'Optional upsampling',merge:'Merge sequences',output:'Target velocity',norm:'Norm + modulation',qkv:'Q / K / V projections',attention:'Joint attention',values:'Value mixing + projection',mlp:'Gated MLP',residual:'Residual addition',qknorm:'QK normalization',rope:'Four-axis RoPE',weights:'Similarity → softmax',core:'Flow transformer',schedule:'Sampling schedule',dev:'[dev] · recompute each step',extract:'[klein] · first pass',bank:'Fixed reference K/V',reuse:'[klein] · reuse later',unpack:'Tokens → spatial grid',inverse:'Inverse normalization',depth:'2×2 depth-to-space'};
+function buildActive(){const graph=layout();$('components').replaceChildren();for(const id of [...(graph.extra||[]),...graph.nodes.map(x=>x.id)]){const b=document.createElement('button');b.textContent=LABELS[id]||CONTENT[id][0];b.dataset.node=id;b.setAttribute('aria-pressed','false');b.addEventListener('click',()=>select(id));b.addEventListener('mouseenter',()=>graphics?.highlight(id));b.addEventListener('mouseleave',()=>graphics?.highlight(state.selected));b.addEventListener('focus',()=>graphics?.highlight(id));b.addEventListener('blur',()=>graphics?.highlight(state.selected));$('components').append(b);}graphics?.build(graph);}
+// 5. Native, keyboard-accessible interaction controller.
+document.querySelectorAll('.chapter-nav a').forEach((a,i)=>a.addEventListener('click',e=>{e.preventDefault();openChapter(i);}));
+$('previous').addEventListener('click',()=>openChapter(state.chapter-1));$('next').addEventListener('click',()=>openChapter(state.chapter+1));
+$('mode').addEventListener('change',e=>{state.mode=e.target.value;buildActive();select(CHAPTERS[state.chapter][3],false);});
+$('detail').addEventListener('click',()=>{state.detail=!state.detail;$('detail').setAttribute('aria-pressed',String(state.detail));graphics?.refreshLabels();});
+$('play').addEventListener('click',()=>setPlaying(!state.playing));$('step').addEventListener('input',e=>{setPlaying(false);state.step=Number(e.target.value);updateStep();});
+$('reset').addEventListener('click',()=>graphics?.reset());
+$('inspect').addEventListener('click',()=>{const target=CONTENT[state.selected][5];if(['double','single'].includes(target)){if(state.chapter!==2)openChapter(2);setView(target);}else{const i=CHAPTERS.findIndex(c=>c[0]===target);if(i>=0)openChapter(i);}});
+function setView(view){state.view=view;document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===view)));buildActive();select(view==='pipeline'?'double':'norm');$('map-name').textContent='/ '+(view==='pipeline'?'TRANSFORMER':view.toUpperCase()+'-STREAM BLOCK');}
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+function fromHash(){const index=CHAPTERS.findIndex(c=>'#'+c[0]===location.hash);if(index>=0)openChapter(index,false);}
+window.addEventListener('hashchange',fromHash);window.addEventListener('popstate',fromHash);
+motion.addEventListener('change',e=>{state.reduced=e.matches;setPlaying(false);graphics?.reset();});
+openChapter(Math.max(0,CHAPTERS.findIndex(c=>'#'+c[0]===location.hash)),false);setPlaying(false);
+// 6. Optional renderer: failed CDN/WebGL leaves the entire semantic page operational.
+let importTimeout=setTimeout(()=>{$('fallback-text').textContent='The 3D library is taking longer than expected. You can continue with the component controls and complete reading guide.';},12000);
+try{
+ const THREE=await import('three');const {OrbitControls}=await import('three/addons/controls/OrbitControls.js');
+ clearTimeout(importTimeout);
+ const canvas=$('scene'),shell=canvas.parentElement;
+ const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:'low-power'});
+ renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<600?1.5:2));renderer.setClearColor(0x101c24,0);
+ const scene=new THREE.Scene();scene.add(new THREE.AmbientLight(0xd5eaff,2.0));
+ const light=new THREE.DirectionalLight(0xffffff,3.2);light.position.set(-8,12,16);scene.add(light);
+ const fill=new THREE.DirectionalLight(0x90b7ff,1.3);fill.position.set(9,-4,5);scene.add(fill);
+ const camera=new THREE.PerspectiveCamera(38,1,.1,180);
+ const controls=new OrbitControls(camera,canvas);controls.enableDamping=false;controls.enablePan=false;controls.minDistance=16;controls.maxDistance=70;controls.minPolarAngle=.45;controls.maxPolarAngle=2.4;
+ const cube=new THREE.BoxGeometry(1,1,1),sphere=new THREE.SphereGeometry(.065,8,6),ring=new THREE.TorusGeometry(.85,.035,6,48);
+ const materials={};for(const [key,color] of Object.entries(COLORS))materials[key]=new THREE.MeshStandardMaterial({color,roughness:.4,metalness:.18,emissive:color,emissiveIntensity:.14});
+ const lineMaterials={};for(const [key,color] of Object.entries(COLORS))lineMaterials[key]=new THREE.LineBasicMaterial({color,transparent:true,opacity:.35});
+ const white=new THREE.MeshBasicMaterial({color:0xe4f4f0});
+ const grid=new THREE.GridHelper(70,70,0x344651,0x24343f);grid.rotation.x=Math.PI/2;grid.position.z=-1.6;grid.material.transparent=true;grid.material.opacity=.42;scene.add(grid);
+ let narrowLayout=false,layoutHeight=14,cameraTween=null;
+ let group=new THREE.Group();scene.add(group);let nodes=[],edges=[],pickables=[],labels=[],resources=[],latentMeshes=[],raf=0,last=0,elapsed=0,stepAccumulator=0,available=true;
+ const matrix=new THREE.Matrix4(),position=new THREE.Vector3(),scale=new THREE.Vector3(),quat=new THREE.Quaternion();
+ const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2(),projected=new THREE.Vector3();
+ const meshColor=new THREE.Color(),startColor=new THREE.Color(),endColor=new THREE.Color();
+ function instances(parent,count,color,transforms){const mesh=new THREE.InstancedMesh(cube,materials[color],count);transforms.forEach((t,i)=>{position.set(t[0],t[1],t[2]||0);scale.set(t[3],t[4],t[5]||.2);matrix.compose(position,quat,scale);mesh.setMatrixAt(i,matrix);});mesh.instanceMatrix.needsUpdate=true;parent.add(mesh);pickables.push(mesh);return mesh;}
+ function box(parent,x,y,z,w,h,d,color){const m=new THREE.Mesh(cube,materials[color]);m.position.set(x,y,z);m.scale.set(w,h,d);parent.add(m);pickables.push(m);return m;}
+ function makeNode(def){const g=new THREE.Group();g.position.set(def.x,def.y,0);g.userData.id=def.id;group.add(g);const color=def.color;
+  if(def.kind==='tokens'){instances(g,12,color,Array.from({length:12},(_,i)=>[(i%4-1.5)*.45,(Math.floor(i/4)-1)*.36,0,.36,.25,.25]));}
+  else if(def.kind==='grid'||def.kind==='image'){const count=def.kind==='image'?144:36,side=Math.sqrt(count),gap=2.05/side;const mesh=instances(g,count,color,Array.from({length:count},(_,i)=>[(i%side-(side-1)/2)*gap,(Math.floor(i/side)-(side-1)/2)*gap,0,gap*.88,gap*.88,.2]));if(def.kind==='image')latentMeshes.push({mesh,side,output:def.id==='rgb'});if(color==='reference')box(g,-1.18,0,.03,.08,2.2,.3,'reference');}
+  else if(def.kind==='double'){instances(g,16,'target',Array.from({length:16},(_,i)=>[(i%8-3.5)*.23,i<8?.48:-.48,0,.13,.65,.85]));const m=g.children[0];for(let i=0;i<8;i++)m.setColorAt(i,new THREE.Color(COLORS.text));m.instanceColor.needsUpdate=true;}
+  else if(def.kind==='stack'){const count=def.id==='single'?48:8;instances(g,count,color,Array.from({length:count},(_,i)=>count===48?[(i%12-5.5)*.18,(Math.floor(i/12)-1.5)*.48,0,.095,.36,.8]:[(i-3.5)*.24,0,0,.13,1.4,.85]));}
+  else if(def.kind==='triple'){instances(g,3,color,Array.from({length:3},(_,i)=>[(i-1)*.66,0,.1*i,.42,1.6,.45]));}
+  else if(def.kind==='ring'||def.kind==='rope'){const count=def.kind==='rope'?4:2;for(let i=0;i<count;i++){const m=new THREE.Mesh(ring,materials[color]);m.rotation.set(i*.55,i*.5,0);g.add(m);pickables.push(m);}box(g,0,0,0,.32,.32,.32,color);}
+  else if(def.kind==='heads'){instances(g,48,color,Array.from({length:48},(_,i)=>[(i%8-3.5)*.25,(Math.floor(i/8)-2.5)*.25,0,.17,.17,.45]));}
+  else if(def.kind==='bank'){instances(g,4,color,Array.from({length:4},(_,i)=>[0,(i-1.5)*.43,0,1.8,.17,.8]));box(g,-.73,0,.5,.08,1.7,.08,'text');}
+  else box(g,0,0,0,1.8,1.1,.6,color);
+  const label=document.createElement('div');label.className='node-label';const title=document.createElement('strong'),detail=document.createElement('small');label.append(title,detail);$('labels').append(label);labels.push({el:label,title,detail,def,anchor:new THREE.Vector3(def.x,def.y-1.5,.2)});nodes.push({def,g});
+ }
+ function makeEdge(edge){const [a,b,color='target',detour=false]=edge,na=nodes.find(n=>n.def.id===a),nb=nodes.find(n=>n.def.id===b);if(!na||!nb)return;const start=na.g.position.clone(),end=nb.g.position.clone();start.z=-.25;end.z=-.25;const direction=end.clone().sub(start).normalize();start.addScaledVector(direction,1.2);end.addScaledVector(direction,-1.2);let curve;if(detour){const c1=start.clone(),c2=end.clone();c1.y-=3;c2.y-=3;curve=new THREE.CubicBezierCurve3(start,c1,c2,end);}else{const mid=start.clone().lerp(end,.5);mid.z-=.3;curve=new THREE.QuadraticBezierCurve3(start,mid,end);}const geometry=new THREE.BufferGeometry().setFromPoints(curve.getPoints(40));resources.push(geometry);const line=new THREE.Line(geometry,lineMaterials[color]);group.add(line);
+ const arrowGeometry=new THREE.ConeGeometry(.10,.27,5);resources.push(arrowGeometry);const arrow=new THREE.Mesh(arrowGeometry,materials[color]);arrow.position.copy(curve.getPoint(.84));arrow.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),curve.getTangent(.84).normalize());group.add(arrow);
+ const marker=new THREE.Mesh(sphere,white);group.add(marker);edges.push({curve,marker,a,b});
+ }
+ function refreshLabels(){for(const l of labels){l.title.textContent=l.def.label||LABELS[l.def.id];l.detail.textContent=state.detail?CONTENT[l.def.id][2].split('\n')[0]:(l.def.id==='rope'?'t · h · w · l':'');}request();}
+ function highlight(id){for(const node of nodes)node.g.scale.setScalar(node.def.id===id?1.1:1);for(const label of labels)label.el.classList.toggle('selected',label.def.id===id);request();}
+ function reset(){cameraTween=null;const aspect=shell.clientWidth/shell.clientHeight;const fov=Math.tan(THREE.MathUtils.degToRad(19));const distance=Math.max((narrowLayout?13:29)/(2*fov*aspect),layoutHeight/(2*fov));camera.position.set(narrowLayout?0:2,narrowLayout?2:6,Math.min(67,distance));controls.target.set(0,0,0);controls.update();request();}
+ function focus(id){
+  const node=nodes.find(n=>n.def.id===id);if(!node)return;
+  const target=node.g.position.clone().multiplyScalar(.18),delta=target.clone().sub(controls.target);
+  const end=camera.position.clone().add(delta);
+  if(state.reduced){camera.position.copy(end);controls.target.copy(target);controls.update();}
+  else cameraTween={from:camera.position.clone(),to:end,fromTarget:controls.target.clone(),toTarget:target,progress:0};
+  request();
+ }
+ function disposeChapter(){for(const r of resources)r.dispose();resources=[];for(const m of pickables)if(m.isInstancedMesh)m.dispose();scene.remove(group);group.clear();group=new THREE.Group();scene.add(group);nodes=[];edges=[];pickables=[];labels=[];latentMeshes=[];$('labels').replaceChildren();}
+ function build(graph){
+  disposeChapter();narrowLayout=shell.clientWidth<600;shell.classList.toggle('compact',narrowLayout);
+  const rows=Math.ceil(graph.nodes.length/2);layoutHeight=narrowLayout?rows*4.4+2:14;
+  shell.style.height=narrowLayout?`${Math.max(435,rows*94+85)}px`:'';
+  const defs=narrowLayout?graph.nodes.map((node,i)=>({...node,x:i%2===0?-3.4:3.4,y:((rows-1)/2-Math.floor(i/2))*4.4})):graph.nodes;
+  defs.forEach(makeNode);graph.edges.forEach(makeEdge);refreshLabels();updateLatent();reset();highlight(state.selected);
+ }
+ function updateLatent(){for(const node of nodes)if(node.def.id==='bank')node.g.visible=state.step>0;for(const label of labels)if(label.def.id==='bank')label.title.textContent=state.step===0?'K/V bank · empty':'K/V bank · stored';for(const {mesh,side,output} of latentMeshes){const p=output?1:state.step/maxSteps();for(let i=0;i<side*side;i++){const x=i%side,y=Math.floor(i/side),u=x/(side-1),v=1-y/(side-1);const noise=(Math.sin(i*127.1+42.3)*43758.5453)%1;startColor.setRGB(.2+Math.abs(noise)*.6,.24+Math.abs(Math.sin(i*9.7))*.5,.3+Math.abs(Math.cos(i*4.2))*.5);const mountain=v<.4+.22*Math.sin(u*7)?0:1;endColor.set(mountain?(v<.65?0x718576:0x344f49):0xd3b78d);if((u-.74)**2+(v-.24)**2<.013)endColor.set(0xf5ddb0);meshColor.copy(startColor).lerp(endColor,p);mesh.setColorAt(i,meshColor);}mesh.instanceColor.needsUpdate=true;}request();}
+ function positionLabels(){const w=shell.clientWidth,h=shell.clientHeight;for(const l of labels){projected.copy(l.anchor).project(camera);l.el.style.left=`${(projected.x*.5+.5)*w}px`;l.el.style.top=`${(-projected.y*.5+.5)*h}px`;l.el.hidden=projected.z>1||projected.z< -1;}}
+ function frame(now){raf=0;if(!available||document.hidden)return;const dt=last?Math.min((now-last)/1000,.05):0;last=now;if(state.playing&&!state.reduced){elapsed+=dt;stepAccumulator+=dt;if(stepAccumulator>.7){stepAccumulator=0;state.step=(state.step+1)%(maxSteps()+1);updateStep();}}else stepAccumulator=0;
+ for(let i=0;i<edges.length;i++){const e=edges[i];let active=state.playing&&!state.reduced;if(state.chapter===5){if(e.a==='extract'||e.b==='extract')active=active&&state.step<=1;if(e.a==='bank')active=active&&state.step>=2;}e.marker.visible=active;if(active)e.marker.position.copy(e.curve.getPoint((elapsed*.25+i*.17)%1));}
+ if(cameraTween){cameraTween.progress=Math.min(1,cameraTween.progress+dt/.35);const t=1-Math.pow(1-cameraTween.progress,3);camera.position.lerpVectors(cameraTween.from,cameraTween.to,t);controls.target.lerpVectors(cameraTween.fromTarget,cameraTween.toTarget,t);controls.update();if(cameraTween.progress===1)cameraTween=null;}
+ renderer.render(scene,camera);positionLabels();if((state.playing&&!state.reduced)||cameraTween)request();}
+ function request(){if(!raf&&available&&!document.hidden)raf=requestAnimationFrame(frame);}
+ controls.addEventListener('change',request);controls.addEventListener('start',()=>{cameraTween=null;});
+ function resize(){const w=shell.clientWidth,h=shell.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();if(narrowLayout!==(w<600))buildActive();reset();}
+ const observer=new ResizeObserver(resize);observer.observe(shell);
+ function hit(event){const rect=canvas.getBoundingClientRect();pointer.set((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1);raycaster.setFromCamera(pointer,camera);const hit=raycaster.intersectObjects(pickables,false)[0];if(!hit)return null;return hit.object.parent.userData.id;}
+ let down=null;canvas.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY};});canvas.addEventListener('pointerup',e=>{if(down&&Math.hypot(e.clientX-down.x,e.clientY-down.y)<6){const id=hit(e);if(id)select(id);}down=null;});canvas.addEventListener('pointercancel',()=>{down=null;});canvas.addEventListener('pointermove',e=>{if(e.buttons)return;const id=hit(e);canvas.style.cursor=id?'pointer':'grab';highlight(id||state.selected);});canvas.addEventListener('pointerleave',()=>highlight(state.selected));
+ document.addEventListener('visibilitychange',()=>{last=0;if(document.hidden){cancelAnimationFrame(raf);raf=0;}else request();});
+ canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();available=false;visualizationFailed=true;cancelAnimationFrame(raf);raf=0;$('fallback').hidden=false;$('fallback-text').textContent='The graphics context was interrupted. The text guide and controls remain available. Reload to restore the scene.';$('scene-status').textContent='TEXT MODE';$('labels').hidden=true;setPlaying(false);});
+ window.addEventListener('pagehide',e=>{if(e.persisted)return;available=false;cancelAnimationFrame(raf);observer.disconnect();controls.dispose();disposeChapter();cube.dispose();sphere.dispose();ring.dispose();grid.geometry.dispose();grid.material.dispose();Object.values(materials).forEach(m=>m.dispose());Object.values(lineMaterials).forEach(m=>m.dispose());white.dispose();renderer.dispose();});
+ graphics={build,highlight,refreshLabels,reset,request,updateLatent,focus};resize();buildActive();renderInspector();$('fallback').hidden=true;$('scene-status').textContent='● LIVE DIAGRAM';
+}catch(error){visualizationFailed=true;clearTimeout(importTimeout);$('fallback').hidden=false;$('fallback-text').textContent='The 3D view is unavailable because WebGL or the graphics library could not load. All chapters, component descriptions and sources still work.';$('scene-status').textContent='TEXT MODE';$('scene').hidden=true;$('labels').hidden=true;$('reset').disabled=true;setPlaying(false);$('play').disabled=true;console.warn('Optional FLUX visualization unavailable:',error.message);}
+</script>
+</body>
+</html>
