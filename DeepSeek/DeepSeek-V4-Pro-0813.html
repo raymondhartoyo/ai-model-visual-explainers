@@ -2,10 +2,75 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="theme-color" content="#f4f3ef">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Inside DeepSeek · V4-Pro-0813</title>
 <style>
 :root{color-scheme:light;--ink:#182c3c;--muted:#586b78;--paper:#f5f5ef;--line:#d7dfdc;--blue:#246dca;--teal:#16847a;--amber:#ba7624;--violet:#8560b2}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.6 system-ui,sans-serif}main{max-width:1440px;margin:auto;padding:30px 40px}header{display:flex;justify-content:space-between;gap:25px;border-bottom:1px solid var(--line);padding-bottom:22px}.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}h1{font-size:clamp(27px,4vw,46px);line-height:1.12;font-weight:550;letter-spacing:-.045em;margin:12px 0}h2{font-size:25px;line-height:1.25;font-weight:550;letter-spacing:-.025em;margin:12px 0}h3{font-size:15px;margin:24px 0 8px}p{margin:10px 0}.intro{color:var(--muted);max-width:660px}.version{font-size:12px;align-self:center;white-space:nowrap}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-right:8px}.stats{display:flex;gap:42px;flex-wrap:wrap;padding:22px 0}.stat b{display:block;font-size:25px;font-weight:500;line-height:1.2}.stat span{font-size:12px;color:var(--muted)}nav{display:flex;gap:7px;flex-wrap:wrap;padding:6px 0 20px}button,select{font:inherit;color:inherit;cursor:pointer;border:1px solid var(--line);background:transparent;border-radius:6px;padding:9px 13px}button:hover{background:#e8eeec}button[aria-pressed=true]{background:var(--ink);color:white;border-color:var(--ink)}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #448fe2;outline-offset:3px}nav button{font-size:13px}nav button span{opacity:.6;margin-right:8px}.workspace{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(300px,1fr);border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fcfcf8}.visual{min-width:0;position:relative;border-right:1px solid var(--line)}.scene-top{position:absolute;top:22px;left:24px;right:24px;z-index:1;pointer-events:none}.scene-top h2{font-size:17px;margin:0}.scene-top p{font-size:12px;color:var(--muted);margin:4px 0}.canvas-wrap{height:560px;position:relative}canvas{display:block;width:100%;height:100%;touch-action:none}.fallback{position:absolute;inset:120px 30px auto;text-align:center;color:var(--muted);font-size:14px}.legend{display:flex;flex-wrap:wrap;gap:16px;padding:12px 24px;border-top:1px solid var(--line);font-size:11px}.legend i{display:inline-block;width:9px;height:9px;margin-right:6px;border-radius:2px}.view-actions{display:flex;gap:8px;padding:0 24px 18px;align-items:center;flex-wrap:wrap}.view-actions button{font-size:12px;padding:6px 10px}.view-actions small{color:var(--muted);font-size:11px}.detail{padding:25px 28px;min-height:620px}.tag{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--teal)}.detail p{font-size:14px}.detail .lead{font-size:17px}.control{margin:22px 0 15px}.control label{display:flex;justify-content:space-between;font-size:12px;gap:10px}.control input[type=range]{width:100%;accent-color:var(--blue);margin-top:12px}.control select{width:100%;margin-top:8px;font-size:13px}.callout{padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:18px 0;font-size:13px}.formula{font:12px/1.8 ui-monospace,monospace;background:#edf1ef;padding:12px;border-radius:5px;overflow-wrap:anywhere}.meta{font-size:12px!important;color:var(--muted)}.readout{font-size:13px;margin:14px 0;display:grid;gap:7px}.readout div{display:flex;justify-content:space-between;gap:16px}.readout b{font-variant-numeric:tabular-nums;font-weight:550}.steps{padding-left:21px;font-size:14px}.steps li{padding:4px 0}.tokens{display:flex;gap:5px;flex-wrap:wrap;margin:16px 0}.tokens span{padding:5px 9px;background:#e5edef;border-radius:4px;font:13px ui-monospace,monospace}.tokens .new{background:#d1eae2}a{color:#2463a4;text-underline-offset:3px}.sources{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:30px;padding-top:10px}.sources p,.sources li{font-size:12px;color:var(--muted)}.sources ul{padding-left:18px}.sources h3{margin-top:5px}.footer{font-size:11px;color:var(--muted);margin:22px 0 0;border-top:1px solid var(--line);padding-top:15px}noscript{display:block;padding:25px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}@media(max-width:850px){main{padding:22px 18px}.workspace{grid-template-columns:1fr}.visual{border-right:0;border-bottom:1px solid var(--line)}.canvas-wrap{height:430px}.detail{min-height:0}.sources{grid-template-columns:1fr;gap:6px}.stats{gap:25px}.version{display:none}}@media(max-width:420px){.canvas-wrap{height:380px}.detail{padding:20px}.scene-top{left:18px}.stats{gap:18px}.stat b{font-size:21px}nav{gap:5px}nav button{padding:8px 9px}.view-actions small{width:100%}}
+
+/* Field-guide presentation, aligned with FLUX/Flux-2-dev.html.
+   Kept inline so each explainer remains a standalone HTML file. */
+:root{color-scheme:light;--bg:#f4f3ef;--paper:#f4f3ef;--panel:#fbfbf8;--ink:#202b2a;--text:#202b2a;--muted:#67716d;--line:#d8dcd4;--green:#386d4b}
+body{background:#f4f3ef;color:#202b2a;font:15px/1.55 Arial,Helvetica,sans-serif}
+button,input,select{font:inherit}
+button,select{min-height:44px;border-radius:6px}
+button{background:transparent;color:inherit;border-color:var(--line)}
+button:hover{background:#e9ece4;border-color:#91a48b}
+button[aria-pressed=true]{background:#e1e9dc;border-color:#91a48b;color:#264b32}
+a{color:#386d4b;text-underline-offset:3px}
+:focus-visible{outline:3px solid #478eaa;outline-offset:4px}
+.eyebrow,.micro{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1.8px}
+h1{font-size:clamp(32px,4vw,49px);font-weight:500;line-height:1.12;letter-spacing:-2px}
+h2,h3{font-weight:500}
+summary{min-height:52px;padding:14px 0;cursor:pointer}
+
+main{max-width:1540px;padding:34px 36px 0}
+.workspace{grid-template-columns:minmax(0,1fr);background:#fbfbf8;border-radius:10px}
+.visual{border-right:0;border-bottom:1px solid var(--line)}
+#detail{min-height:0;padding:30px clamp(22px,7vw,100px);font-size:14px}
+#detail>p,#detail>h2,#detail>h3,#detail>.control,#detail>.callout,#detail>.formula,#detail>.readout{max-width:960px}
+#detail p,#detail li{font-size:14px;line-height:1.75}
+#detail h2{font-size:28px;font-weight:500}
+#detail .control{max-width:680px}
+.stats{gap:24px 40px}
+.stats b,.stats strong{font:30px/1.5 Georgia,serif}
+.sources{border-top:1px solid var(--line);padding:30px 0;gap:30px}
+.sources h3{font-size:20px}
+.sources p,.sources li{font-size:13px;line-height:1.7}
+.formula{background:#edf0e8;color:#3f5f40;border:1px solid #dee4d7}
+@media(max-width:780px){main{padding:24px 22px 0}.sources{grid-template-columns:1fr;gap:15px}}
+@media(max-width:480px){main{padding:23px 14px 0}#detail{padding:24px 18px}.stats{gap:15px 24px}.stats b,.stats strong{font-size:25px}}
+
+/* Chapter navigation uses the same quiet, segmented treatment as FLUX. */
+nav{display:flex;flex-wrap:wrap;gap:0;padding:0;margin:22px 0 26px;border:1px solid var(--line);border-radius:8px;background:#f9f9f6;overflow:hidden}
+nav button{flex:1;justify-content:center;margin:0;padding:14px 12px;min-height:54px;border:0;border-right:1px solid var(--line);border-radius:0;background:transparent;color:var(--muted);font-size:12px;white-space:nowrap}
+nav button:last-child{border-right:0}
+nav button[aria-pressed=true],nav button[aria-current=step],nav button[aria-current=true]{background:var(--ink);color:white}
+nav button[aria-current] span{color:inherit}
+@media(max-width:600px){nav button{flex:1 1 130px;min-height:44px;padding:10px 8px;border-bottom:1px solid var(--line);font-size:11px}}
+
+/* Keep interactive controls with the canvas; reading stays below the workbench. */
+.canvas-controls{min-width:0;padding:20px;background:#fbfbf8;color:#202b2a;border-left:1px solid #d8dcd4;align-self:stretch}
+.canvas-controls>.eyebrow{display:block;margin:0 0 14px;color:#67716d;font:10px ui-monospace,monospace;letter-spacing:1.5px}
+.canvas-controls button,.canvas-controls select{font-size:12px;min-height:44px;max-width:100%}
+.canvas-controls select{width:100%;background:#fafaf7;color:#202b2a;border:1px solid #d8dcd4;border-radius:5px;padding:8px}
+.canvas-controls .control{margin:0 0 16px}
+.canvas-controls .control label{flex-wrap:wrap;gap:5px;font-size:12px}
+.canvas-controls .control input{min-height:30px}
+.canvas-controls .seg{margin:0 0 16px;gap:6px}
+.canvas-controls .seg button{flex:1;padding:7px 9px}
+.canvas-controls .tokens{margin:14px 0;font-size:12px}
+.canvas-controls .camera-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:20px;padding:16px 0 0;border-top:1px solid #d8dcd4}
+.canvas-controls .camera-actions small{width:100%;color:#67716d;font-size:10px}
+@media(max-width:780px){.canvas-controls{border-left:0;border-top:1px solid #d8dcd4;padding:14px 16px}.canvas-controls>.eyebrow{margin-bottom:10px}.canvas-controls .control{margin-bottom:10px}.canvas-controls .camera-actions{margin-top:10px;padding-top:10px}}
+
+.workspace{grid-template-columns:minmax(0,1fr) 300px}
+#detail{grid-column:1/-1;border-top:1px solid var(--line)}
+.visual{border:0}
+#stage{height:clamp(300px,55dvh,470px)}
+.scene-head{height:auto;min-height:70px;padding-bottom:10px}
+@media(max-width:780px){.workspace{grid-template-columns:minmax(0,1fr)}#stage{height:clamp(220px,36dvh,310px)}.legend{padding:10px 16px;gap:8px}.scene-head{min-height:0;padding:14px 16px 8px}.scene-top{top:12px;left:16px}.scene-top p{max-width:90%}}
+
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
 </head>
@@ -14,7 +79,8 @@
 <div class="stats"><div class="stat"><b>61</b><span>Transformer layers</span></div><div class="stat"><b>7,168</b><span>Hidden dimensions</span></div><div class="stat"><b>6 / 384</b><span>Routed experts per token</span></div><div class="stat"><b>1,048,576</b><span>Configured context positions</span></div></div>
 <nav aria-label="Architecture chapters" id="chapters"></nav>
 <section class="workspace" aria-label="Interactive model architecture">
-<div class="visual"><div class="scene-top"><h2 id="scene-title">The decoder stack</h2><p id="scene-caption">Each slab is one Transformer layer.</p></div><div class="canvas-wrap" id="stage"><div class="fallback" id="fallback">Loading the 3D diagram…<br>The explanations and controls also work without WebGL.</div></div><div id="legend" class="legend"></div><div class="view-actions"><button id="reset">Reset camera</button><button id="rotate" aria-pressed="false">Auto-rotate</button><small>Drag to orbit · scroll to zoom · click a layer to inspect</small></div></div>
+<div class="visual"><div class="scene-top"><h2 id="scene-title">The decoder stack</h2><p id="scene-caption">Each slab is one Transformer layer.</p></div><div class="canvas-wrap" id="stage"><div class="fallback" id="fallback">Loading the 3D diagram…<br>The explanations and controls also work without WebGL.</div></div><div id="legend" class="legend"></div></div>
+<div class="canvas-controls" aria-label="Diagram controls"><div class="eyebrow">Diagram controls</div><div id="diagram-options"></div><div class="camera-actions"><button id="reset">Reset camera</button><button id="rotate" aria-pressed="false">Auto-rotate</button><small>Drag to orbit · scroll to zoom · click a layer to inspect</small></div></div>
 <article class="detail" id="detail" aria-live="polite"></article>
 </section>
 <section class="sources" aria-label="Sources and interpretation"><div><h3>Read the original sources</h3><ul><li><a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro-0813/blob/main/config.json" target="_blank" rel="noopener">0813 checkpoint configuration</a> — exact dimensions and DSpark settings.</li><li><a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro-0813" target="_blank" rel="noopener">0813 release card</a> — architecture lineage and decoding support.</li><li><a href="https://arxiv.org/html/2606.19348" target="_blank" rel="noopener">DeepSeek-V4 technical report</a> — attention, mHC, MoE, and cache design.</li><li><a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro-0813/blob/main/inference/config.json" target="_blank" rel="noopener">0813 inference configuration</a> — three draft stages.</li><li><a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro-0813/blob/main/inference/model.py" target="_blank" rel="noopener">0813 reference implementation</a> — executable architecture details.</li><li><a href="https://fe-static.deepseek.com/chat/transparency/deepseek-V4-model-card-EN.pdf" target="_blank" rel="noopener">DeepSeek model transparency card</a> — text modality.</li></ul></div><div><h3>How to read this model</h3><p>Dimensions come from the exact 0813 checkpoint. Mechanisms come from DeepSeek’s V4 report and reference implementation; the release card confirms the shared architecture. The report describes Pro as approximately 1.6T total parameters and 49B activated per token. The checkpoint page’s automated 1.7T count is a different accounting figure.</p><p>All token choices, expert selections, geometry, and motion here are teaching illustrations. No weights are loaded and no inference runs. Cache counts describe logical completed entries, not allocated GPU memory or latency.</p></div></section>
@@ -49,6 +115,7 @@ function render(){
  `<span class="tag">Per-layer logical cache / not GPU bytes</span><h2>The past is computed once</h2><p>Prefill processes the prompt and builds each layer’s cache. Decoding computes the new token’s query and KV state, reuses the history, and updates the cache.</p><div class="control"><label for="context">Context length <b>${context.toLocaleString()} tokens</b></label><input id="context" type="range" min="7" max="20" step="1" value="${Math.log2(context)}"></div><div class="readout"><div><span>Local window / each layer</span><b>${count.local} entries</b></div><div><span>CSA completed compressed groups</span><b>${count.csa.toLocaleString()}</b></div><div><span>CSA entries selected for attention</span><b>≤ ${count.selected.toLocaleString()}</b></div><div><span>HCA completed compressed groups</span><b>${count.hca.toLocaleString()}</b></div><div><span>Unfinished groups: CSA / HCA</span><b>${count.csaTail} / ${count.hcaTail} tokens</b></div></div><button id="append">Append one token</button><div class="callout">Selecting 1,024 CSA entries does <b>not</b> limit the stored CSA cache to 1,024. The indexer can choose from the accumulated compressed history.</div><p class="meta">Counts: floor(N/4), floor(N/128), min(N,128). A separate indexer cache, compressor state, precision, metadata, allocation and batch size also affect actual memory. Tail state persists until a compression group completes; it is not another full historical KV cache.</p>`,
  `<span class="tag">Modality / decoding</span><h2>Generate a continuation</h2><p class="lead">This checkpoint is a text language model.</p><p>Messages, code, and tool-call text are encoded as tokens. The final hidden state is normalized and projected to 129,280 vocabulary logits. Sampling or greedy selection chooses a token, which is fed back for the next step.</p><div class="tokens">${['The',' sky',' is',...[' blue','.','<eos>'].slice(0,step)].map((s,i)=>`<span class="${i>2?'new':''}">${s.replace('<','&lt;')}</span>`).join('')}</div><button id="decode">${step===3?'Restart toy sequence':'Generate next toy token'}</button><h3>DSpark: draft, then verify</h3><p>The 0813 release adds speculative decoding. A draft proposes tokens; the main model verifies them before accepting a prefix and continuing. Acceptance and speed depend on the workload.</p><p class="meta">Checkpoint settings include block size 5 and target layer IDs 58, 59, 60 (zero-based). These are draft settings, not five guaranteed output tokens per step. The reference code uses three DSpark stages. Its inference config says n_mtp_layers: 3; the top-level config says num_nextn_predict_layers: 1. The preview report’s one-stage MTP should not be read as the 0813 draft-stack depth.</p><div class="callout"><b>No native image, video, or audio path is documented.</b><br>There is no media encoder or media-generation decoder to trace here. OCR, transcription, or media tools would be external systems passing text to or from this model.</div>`
  ];
+ $('diagram-options').replaceChildren();
  $('detail').innerHTML=content[view];
  legend(view===0?[['HCA layers',colors.HCA],['CSA layers',colors.CSA],['Selected layer',colors.local]]:view===1?[['Inactive expert',colors.neutral],['Selected expert',colors.expert],['Shared expert',colors.local]]:view===2?[['Compressed history',colors[attention]],['Recent window',colors.local],['Query',colors.expert]]:view===3?[['Local window',colors.local],['CSA stored entries',colors.CSA],['HCA stored entries',colors.HCA]]:[['Main model',colors.CSA],['DSpark draft',colors.expert],['Chosen text',colors.HCA]]);
  const on=(id,event,fn)=>{if($(id))$(id).addEventListener(event,fn);};
@@ -57,6 +124,8 @@ function render(){
  on('context','input',e=>{e.target.previousElementSibling.querySelector('b').textContent=`${(2**Number(e.target.value)).toLocaleString()} tokens`;});on('context','change',e=>{context=2**Number(e.target.value);render();});on('append','click',()=>{context=Math.min(SPEC.maxContext,context+1);render();});
  if($('append'))$('append').disabled=context===SPEC.maxContext;
  on('decode','click',()=>{step=(step+1)%4;render();});
+ // Reparent controls rather than cloning them: preserve IDs, handlers and keyboard focus.
+ $('diagram-options').append(...$('detail').querySelectorAll(':scope > .control, :scope > .seg, :scope > button, :scope > .tokens'));
  if(focused && $(focused)) $(focused).focus({preventScroll:true});
  if(scene)buildScene();
 }

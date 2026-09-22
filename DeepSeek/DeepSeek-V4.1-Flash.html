@@ -2,10 +2,75 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="theme-color" content="#f4f3ef">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DeepSeek-V4.1-Flash · Architecture explorer</title>
 <style>
 :root{color-scheme:light;--bg:#f5f4ee;--paper:#fffef9;--ink:#243a40;--muted:#62777b;--line:#d8dfd8;--teal:#16897d;--blue:#4578c9;--amber:#c88832;--purple:#9065b5}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,sans-serif}main{max-width:1450px;margin:auto;padding:30px 36px}header{display:flex;justify-content:space-between;align-items:center;gap:24px;border-bottom:1px solid var(--line);padding-bottom:22px}.eyebrow{font:11px ui-monospace,monospace;letter-spacing:.13em;text-transform:uppercase;color:var(--teal)}h1{font-size:clamp(27px,4vw,47px);font-weight:550;line-height:1.15;letter-spacing:-.055em;margin:13px 0}h1 span{color:var(--teal)}h2{font-size:24px;line-height:1.3;font-weight:550;letter-spacing:-.025em;margin:12px 0}h3{font-size:15px;margin:20px 0 8px}p{margin:10px 0}.intro{max-width:700px;color:var(--muted);margin-bottom:0}.stamp{font:11px/1.8 ui-monospace,monospace;text-align:right;color:var(--muted);white-space:nowrap}.stats{display:flex;gap:40px;flex-wrap:wrap;padding:23px 0}.stats strong{display:block;font-size:25px;font-weight:500;line-height:1.2}.stats small{font-size:11px;color:var(--muted)}nav{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}button,select{font:inherit;color:inherit;background:transparent;border:1px solid var(--line);border-radius:6px;padding:8px 12px;cursor:pointer}button:hover{background:#e7eeea}button:disabled{opacity:.45;cursor:default}button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:white}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--blue);outline-offset:3px}nav button{font-size:12px}nav b{font:10px ui-monospace,monospace;opacity:.6;margin-right:7px}.workspace{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(340px,1fr);background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden}.visual{min-width:0;border-right:1px solid var(--line)}.scene-head{padding:20px 24px 0;height:77px}.scene-head h2{font-size:17px;margin:0}.scene-head p{font-size:11px;color:var(--muted);margin:4px 0}#stage{height:500px;position:relative}canvas{display:block;width:100%;height:100%;touch-action:none}#fallback{position:absolute;inset:32% 12% auto;text-align:center;font-size:13px;color:var(--muted)}#hover{position:absolute;bottom:8px;left:20px;font-size:11px;background:var(--paper);padding:3px 8px;pointer-events:none}.legend{display:flex;flex-wrap:wrap;gap:13px;border-top:1px solid var(--line);padding:13px 24px;font-size:10px}.legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}.actions{display:flex;gap:7px;align-items:center;padding:0 24px 18px;flex-wrap:wrap}.actions button{font-size:11px;padding:5px 9px}.actions small{font-size:10px;color:var(--muted)}article{padding:24px 28px;min-width:0}article p,article li{font-size:13px}.lead{font-size:16px!important}.tag{font:10px ui-monospace,monospace;letter-spacing:.08em;color:var(--teal);text-transform:uppercase}.control{margin:18px 0}.control label{display:flex;justify-content:space-between;font-size:12px;gap:15px}.control input{width:100%;accent-color:var(--teal);margin:12px 0 0}.control select{width:100%;font-size:12px;margin-top:6px}.seg{display:flex;gap:5px;flex-wrap:wrap;margin:15px 0}.seg button{font-size:12px}.callout{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;margin:17px 0;font-size:13px}.formula{padding:12px;background:#edf2ed;border-radius:5px;font:12px/1.7 ui-monospace,monospace;overflow-wrap:anywhere}.muted,.note{color:var(--muted)}.note{font-size:11px!important}.readout{display:grid;gap:7px;font-size:12px;margin:15px 0}.readout div{display:flex;justify-content:space-between;gap:14px}.readout b{font-weight:550;font-variant-numeric:tabular-nums}.tokens{display:flex;gap:5px;flex-wrap:wrap;margin:15px 0}.tokens span{font:12px ui-monospace,monospace;border-radius:4px;padding:6px 9px;background:#e5eae5}.tokens .active{background:#c8e8dc}a{color:#356cac;text-underline-offset:3px}.sources{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:26px}.sources p,.sources li{font-size:12px;color:var(--muted)}.sources ul{padding-left:18px}.sources h3{margin-top:5px}footer{font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:15px;margin-top:20px}details{font-size:12px;margin-top:18px}summary{cursor:pointer}table{border-collapse:collapse;width:100%;font-size:11px;margin-top:10px}th,td{text-align:left;padding:7px 5px;border-bottom:1px solid var(--line)}noscript{display:block;padding:20px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}@media(max-width:900px){main{padding:22px 18px}.workspace{grid-template-columns:1fr}.visual{border-right:0;border-bottom:1px solid var(--line)}#stage{height:450px}.stamp{display:none}.stats{gap:24px}.sources{grid-template-columns:1fr;gap:10px}}@media(max-width:440px){#stage{height:370px}article{padding:22px 18px}.scene-head{padding-left:18px}.stats{gap:20px}.stats strong{font-size:21px}.actions small{width:100%}}
+
+/* Field-guide presentation, aligned with FLUX/Flux-2-dev.html.
+   Kept inline so each explainer remains a standalone HTML file. */
+:root{color-scheme:light;--bg:#f4f3ef;--paper:#f4f3ef;--panel:#fbfbf8;--ink:#202b2a;--text:#202b2a;--muted:#67716d;--line:#d8dcd4;--green:#386d4b}
+body{background:#f4f3ef;color:#202b2a;font:15px/1.55 Arial,Helvetica,sans-serif}
+button,input,select{font:inherit}
+button,select{min-height:44px;border-radius:6px}
+button{background:transparent;color:inherit;border-color:var(--line)}
+button:hover{background:#e9ece4;border-color:#91a48b}
+button[aria-pressed=true]{background:#e1e9dc;border-color:#91a48b;color:#264b32}
+a{color:#386d4b;text-underline-offset:3px}
+:focus-visible{outline:3px solid #478eaa;outline-offset:4px}
+.eyebrow,.micro{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1.8px}
+h1{font-size:clamp(32px,4vw,49px);font-weight:500;line-height:1.12;letter-spacing:-2px}
+h2,h3{font-weight:500}
+summary{min-height:52px;padding:14px 0;cursor:pointer}
+
+main{max-width:1540px;padding:34px 36px 0}
+.workspace{grid-template-columns:minmax(0,1fr);background:#fbfbf8;border-radius:10px}
+.visual{border-right:0;border-bottom:1px solid var(--line)}
+#detail{min-height:0;padding:30px clamp(22px,7vw,100px);font-size:14px}
+#detail>p,#detail>h2,#detail>h3,#detail>.control,#detail>.callout,#detail>.formula,#detail>.readout{max-width:960px}
+#detail p,#detail li{font-size:14px;line-height:1.75}
+#detail h2{font-size:28px;font-weight:500}
+#detail .control{max-width:680px}
+.stats{gap:24px 40px}
+.stats b,.stats strong{font:30px/1.5 Georgia,serif}
+.sources{border-top:1px solid var(--line);padding:30px 0;gap:30px}
+.sources h3{font-size:20px}
+.sources p,.sources li{font-size:13px;line-height:1.7}
+.formula{background:#edf0e8;color:#3f5f40;border:1px solid #dee4d7}
+@media(max-width:780px){main{padding:24px 22px 0}.sources{grid-template-columns:1fr;gap:15px}}
+@media(max-width:480px){main{padding:23px 14px 0}#detail{padding:24px 18px}.stats{gap:15px 24px}.stats b,.stats strong{font-size:25px}}
+
+/* Chapter navigation uses the same quiet, segmented treatment as FLUX. */
+nav{display:flex;flex-wrap:wrap;gap:0;padding:0;margin:22px 0 26px;border:1px solid var(--line);border-radius:8px;background:#f9f9f6;overflow:hidden}
+nav button{flex:1;justify-content:center;margin:0;padding:14px 12px;min-height:54px;border:0;border-right:1px solid var(--line);border-radius:0;background:transparent;color:var(--muted);font-size:12px;white-space:nowrap}
+nav button:last-child{border-right:0}
+nav button[aria-pressed=true],nav button[aria-current=step],nav button[aria-current=true]{background:var(--ink);color:white}
+nav button[aria-current] span{color:inherit}
+@media(max-width:600px){nav button{flex:1 1 130px;min-height:44px;padding:10px 8px;border-bottom:1px solid var(--line);font-size:11px}}
+
+/* Keep interactive controls with the canvas; reading stays below the workbench. */
+.canvas-controls{min-width:0;padding:20px;background:#fbfbf8;color:#202b2a;border-left:1px solid #d8dcd4;align-self:stretch}
+.canvas-controls>.eyebrow{display:block;margin:0 0 14px;color:#67716d;font:10px ui-monospace,monospace;letter-spacing:1.5px}
+.canvas-controls button,.canvas-controls select{font-size:12px;min-height:44px;max-width:100%}
+.canvas-controls select{width:100%;background:#fafaf7;color:#202b2a;border:1px solid #d8dcd4;border-radius:5px;padding:8px}
+.canvas-controls .control{margin:0 0 16px}
+.canvas-controls .control label{flex-wrap:wrap;gap:5px;font-size:12px}
+.canvas-controls .control input{min-height:30px}
+.canvas-controls .seg{margin:0 0 16px;gap:6px}
+.canvas-controls .seg button{flex:1;padding:7px 9px}
+.canvas-controls .tokens{margin:14px 0;font-size:12px}
+.canvas-controls .camera-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:20px;padding:16px 0 0;border-top:1px solid #d8dcd4}
+.canvas-controls .camera-actions small{width:100%;color:#67716d;font-size:10px}
+@media(max-width:780px){.canvas-controls{border-left:0;border-top:1px solid #d8dcd4;padding:14px 16px}.canvas-controls>.eyebrow{margin-bottom:10px}.canvas-controls .control{margin-bottom:10px}.canvas-controls .camera-actions{margin-top:10px;padding-top:10px}}
+
+.workspace{grid-template-columns:minmax(0,1fr) 300px}
+#detail{grid-column:1/-1;border-top:1px solid var(--line)}
+.visual{border:0}
+#stage{height:clamp(300px,55dvh,470px)}
+.scene-head{height:auto;min-height:70px;padding-bottom:10px}
+@media(max-width:780px){.workspace{grid-template-columns:minmax(0,1fr)}#stage{height:clamp(220px,36dvh,310px)}.legend{padding:10px 16px;gap:8px}.scene-head{min-height:0;padding:14px 16px 8px}.scene-top{top:12px;left:16px}.scene-top p{max-width:90%}}
+
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
 </head>
@@ -14,7 +79,8 @@
 <div class="stats"><div><strong>20 + 20</strong><small>Causal encoder + decoder</small></div><div><strong>552B</strong><small>Backbone parameters</small></div><div><strong>8B / 16B</strong><small>Active: prefill / decode</small></div><div><strong>1M</strong><small>Context tokens</small></div><div><strong>Image + text</strong><small>Input → text output</small></div></div>
 <nav id="chapters" aria-label="Architecture chapters"></nav>
 <section class="workspace" aria-label="Interactive architecture">
-<div class="visual"><div class="scene-head"><h2 id="scene-title">A model in two halves</h2><p id="scene-caption">40 backbone layers. Click a slab to inspect it.</p></div><div id="stage"><div id="fallback" role="status">Loading the 3D diagram…<br>All explanations and controls also work without WebGL.</div><div id="hover" hidden></div></div><div class="legend" id="legend"></div><div class="actions"><button id="reset">Reset view</button><button id="rotate" aria-pressed="false">Rotate</button><small>Drag to orbit · wheel to zoom · layers also selectable with the slider</small></div></div>
+<div class="visual"><div class="scene-head"><h2 id="scene-title">A model in two halves</h2><p id="scene-caption">40 backbone layers. Click a slab to inspect it.</p></div><div id="stage"><div id="fallback" role="status">Loading the 3D diagram…<br>All explanations and controls also work without WebGL.</div><div id="hover" hidden></div></div><div class="legend" id="legend"></div></div>
+<div class="canvas-controls" aria-label="Diagram controls"><div class="eyebrow">Diagram controls</div><div id="diagram-options"></div><div class="camera-actions"><button id="reset">Reset view</button><button id="rotate" aria-pressed="false">Rotate</button><small>Drag to orbit · wheel to zoom · layers also selectable with the slider</small></div></div>
 <article id="detail" aria-live="polite"></article>
 </section>
 <section class="sources"><div><h3>Primary sources</h3><ul><li><a href="https://www.deepseek.com/en/news/deepseek-v4-1-flash/" target="_blank" rel="noopener">DeepSeek release announcement</a> — model identity and headline specifications.</li><li><a href="https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash" target="_blank" rel="noopener">Official checkpoint model card</a> — CED, cache reuse, modalities and extensions.</li><li><a href="https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash/blob/main/config.json" target="_blank" rel="noopener">Checkpoint configuration</a> — layer IDs, dimensions and exact counts.</li><li><a href="https://arxiv.org/html/2609.19969" target="_blank" rel="noopener">DeepSeek-V4.1-Flash technical report</a> — architecture §2, cache deployment §3.2, configuration §4.2.1.</li></ul></div><div><h3>Read the diagram correctly</h3><p>Geometry, animated paths, attention scores, expert choices and example tokens are teaching illustrations. This page loads no model weights and performs no inference. Counts refer to the named checkpoint; dimensions are not drawn to scale.</p><p>Layers are numbered 1–40 here. Source code uses 0–39. The separate 32-layer vision encoder and three DSpark draft blocks are outside the 40-layer language backbone. Engram contributes a separate 196B conditional-memory parameters.</p><details><summary>Exact backbone attention schedule</summary><table><thead><tr><th>Layers (1-based)</th><th>Global path</th><th>Sharing pattern</th></tr></thead><tbody><tr><td>1–2</td><td>None</td><td>Local SWA only</td></tr><tr><td>3–8, 9–14, 15–20</td><td>CSA2 · 2:1</td><td>Full + 5 Reuse</td></tr><tr><td>21–24</td><td>CSA2 · 1:1</td><td>Full + 3 Reuse</td></tr><tr><td>25–28, 29–32,<br>33–36, 37–40</td><td>CSA2 · 1:1</td><td>Reindex + 3 Reuse</td></tr></tbody></table></details></div></section>
@@ -50,6 +116,7 @@ function render(){const focusId=document.activeElement?.id;const l=layerSpec(sel
  `<span class="tag">05 / Native visual understanding</span><h2>An image becomes a sequence.</h2><div class="control"><label for="imageSize">Illustrative square image</label><select id="imageSize">${[672,1008,1344].map(n=>`<option value="${n}" ${n===imageSize?'selected':''}>${n} × ${n} pixels</option>`).join('')}</select></div><div class="readout"><div><span>14 × 14 pixel patches</span><b>${v.patches.toLocaleString()}</b></div><div><span>After 3 × 3 pixel unshuffle</span><b>${v.tokens.toLocaleString()} visual tokens</b></div></div><p><b>32-layer DeepSeek-ViT</b> encodes patches using 2D positional information. Pixel unshuffle groups nine neighboring features; a <b>two-layer MLP</b> maps them into language-model embeddings.</p><div class="formula">pixels → patches → ViT → unshuffle<br>→ projector → visual + text embeddings</div><button id="visionNext">Trace next stage (${visionStep+1} / 5)</button><p class="note">ViT width 1,024; 16 heads. Counts above assume a square image divisible by 42, and exclude text and formatting tokens.</p><div class="callout"><b>Image + text in. Text out.</b><br>No native video/audio pathway or image, video, or audio generation is documented in the cited checkpoint. Extracting frames or transcribing audio would be an external preprocessing step.</div>${cite(CARD,'Model card · multimodal architecture')}${cite(CONFIG,'Configuration · vision_config')}`,
  `<span class="tag">06 / Autoregressive generation</span><h2>One token changes what comes next.</h2><p>The output head converts a hidden state into vocabulary scores. A decoding rule selects a token; that token feeds back through the model. Stop when an end token or a generation limit is reached.</p><div class="tokens">${['The',' scene',' contains',' a',' tree.'].map((t,i)=>`<span class="${i<outputStep?'active':''}">${i<outputStep?t:'· · ·'}</span>`).join('')}</div><button id="generate">${outputStep===5?'Reset toy answer':'Generate next toy token'}</button><p class="note">Scripted teaching sequence, not model output. Tokens need not correspond to whole words.</p><div class="callout"><b>DSpark: propose, then verify.</b><br>Three extra draft blocks propose five positions. The backbone verifies a scheduled draft prefix; acceptance varies. Drafts are not automatically final output.</div><p>Image understanding influences these text-token scores through the visual embeddings already in context.</p>${cite(PAPER+'#S2.SS4.SSS3','Report §2.4.3 · DSpark')}${cite(CARD,'Model card · autoregressive text output')}`
  ];
+ $('diagram-options').replaceChildren();
  $('detail').innerHTML=content[view];
  const legendItems=view===0?[['Full / new global KV',COLORS.Full],['Reindex',COLORS.Reindex],['Reuse',COLORS.Reuse],['Local only',COLORS.SWA]]:view===1?[['Selected global',COLORS.Full],['Not selected',COLORS.neutral],['Local window',COLORS.SWA],['Query',COLORS.selected]]:view===2?[['Global state',COLORS.Full],['Local / replay',COLORS.SWA]]:view===3?[['Selected expert',COLORS.Reindex],['Shared expert',COLORS.Full],['Engram',COLORS.SWA]]:view===4?[['Image path',COLORS.Full],['Text path',COLORS.Reuse],['Active stage',COLORS.selected]]:[['Backbone',COLORS.Full],['Draft blocks',COLORS.SWA],['Chosen token',COLORS.Reindex]];
  $('legend').innerHTML=legendItems.map(([label,c])=>`<span><i style="background:#${c.toString(16).padStart(6,'0')}"></i>${label}</span>`).join('');
@@ -64,6 +131,8 @@ function render(){const focusId=document.activeElement?.id;const l=layerSpec(sel
  on('query','click',()=>{tokenSeed++;render();});on('route','click',()=>{tokenSeed++;render();});
  on('imageSize','change',e=>{imageSize=Number(e.target.value);render();});on('visionNext','click',()=>{visionStep=(visionStep+1)%5;render();});
  on('generate','click',()=>{outputStep=(outputStep+1)%6;render();});
+ // Reparent controls rather than cloning them: preserve IDs, handlers and keyboard focus.
+ $('diagram-options').append(...$('detail').querySelectorAll(':scope > .control, :scope > .seg, :scope > button, :scope > .tokens'));
  if(focusId&&$(focusId))$(focusId).focus({preventScroll:true});
  if(scene)buildScene();
 }
