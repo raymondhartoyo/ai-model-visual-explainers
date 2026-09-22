@@ -71,6 +71,12 @@ nav button[aria-current] span{color:inherit}
 .scene-head{height:auto;min-height:70px;padding-bottom:10px}
 @media(max-width:780px){.workspace{grid-template-columns:minmax(0,1fr)}#stage{height:clamp(220px,36dvh,310px)}.legend{padding:10px 16px;gap:8px}.scene-head{min-height:0;padding:14px 16px 8px}.scene-top{top:12px;left:16px}.scene-top p{max-width:90%}}
 
+/* Dark diagram surface shared with FLUX; controls and reading retain the light theme. */
+#stage{background:radial-gradient(ellipse at 50% 60%,#21343e 0%,#101c24 75%);color:#dde7e9}
+.visual{background:#101c24;color:#dde7e9;--muted:#a6b8c1;--line:#34444c}
+.scene-head,.scene-top{color:#dde7e9}
+.legend{color:#a6b8c1}
+#hover{background:#1d2c34;color:#dde7e9;border:1px solid #34444c;border-radius:4px}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
 </head>
@@ -130,7 +136,7 @@ function render(){
  if(scene)buildScene();
 }
 function box(x,y,z,w,h,d,c,opacity=1){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:c,roughness:.7,transparent:opacity<1,opacity}));m.position.set(x,y,z);group.add(m);return m;}
-function textLabel(text,x,y,z,size=.48){const c=document.createElement('canvas');c.width=1024;c.height=96;const ctx=c.getContext('2d');ctx.font='500 36px system-ui';ctx.fillStyle='#263e4f';ctx.textAlign='center';ctx.fillText(text,512,58);const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,depthTest:false}));sprite.position.set(x,y,z);sprite.scale.set(size*10.66,size,1);group.add(sprite);}
+function textLabel(text,x,y,z,size=.48){const c=document.createElement('canvas');c.width=1024;c.height=96;const ctx=c.getContext('2d');ctx.font='500 36px system-ui';ctx.fillStyle='#dde7e9';ctx.textAlign='center';ctx.fillText(text,512,58);const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,depthTest:false}));sprite.position.set(x,y,z);sprite.scale.set(size*10.66,size,1);group.add(sprite);}
 function line(a,b,c=0xa6b6be){const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a),new THREE.Vector3(...b)]);group.add(new THREE.Line(g,new THREE.LineBasicMaterial({color:c})));}
 function arrow(a,b,c){const start=new THREE.Vector3(...a),end=new THREE.Vector3(...b),dir=end.clone().sub(start);group.add(new THREE.ArrowHelper(dir.clone().normalize(),start,dir.length(),c,.26,.14));}
 function clean(){if(group){group.traverse(o=>{o.geometry?.dispose();if(o.material){for(const m of Array.isArray(o.material)?o.material:[o.material]){m.map?.dispose();m.dispose();}}});scene.remove(group);}group=new THREE.Group();scene.add(group);pickables=[];}
@@ -146,8 +152,8 @@ $('reset').addEventListener('click',resetCamera);$('rotate').addEventListener('c
 render();
 try{
  THREE=await import('three');({OrbitControls}=await import('three/addons/controls/OrbitControls.js'));
- scene=new THREE.Scene();scene.background=new THREE.Color(0xfcfcf8);
- renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.domElement.setAttribute('role','img');renderer.domElement.setAttribute('aria-label','Interactive 3D architecture. Equivalent details and controls are in the adjacent text panel.');$('stage').appendChild(renderer.domElement);
+ scene=new THREE.Scene();
+ renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.domElement.setAttribute('role','img');renderer.domElement.setAttribute('aria-label','Interactive 3D architecture. Equivalent details and controls are in the adjacent text panel.');$('stage').appendChild(renderer.domElement);
  camera=new THREE.PerspectiveCamera(39,1,.1,150);controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.minDistance=12;controls.maxDistance=48;controls.autoRotateSpeed=.65;
  scene.add(new THREE.HemisphereLight(0xffffff,0xa3b1b8,2.7));const sun=new THREE.DirectionalLight(0xffffff,3);sun.position.set(6,10,12);scene.add(sun);
  const resize=()=>{const r=$('stage').getBoundingClientRect();renderer.setSize(r.width,r.height);camera.aspect=r.width/r.height;camera.updateProjectionMatrix();};new ResizeObserver(resize).observe($('stage'));resize();

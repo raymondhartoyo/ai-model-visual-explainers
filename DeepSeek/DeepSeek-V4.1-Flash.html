@@ -71,6 +71,12 @@ nav button[aria-current] span{color:inherit}
 .scene-head{height:auto;min-height:70px;padding-bottom:10px}
 @media(max-width:780px){.workspace{grid-template-columns:minmax(0,1fr)}#stage{height:clamp(220px,36dvh,310px)}.legend{padding:10px 16px;gap:8px}.scene-head{min-height:0;padding:14px 16px 8px}.scene-top{top:12px;left:16px}.scene-top p{max-width:90%}}
 
+/* Dark diagram surface shared with FLUX; controls and reading retain the light theme. */
+#stage{background:radial-gradient(ellipse at 50% 60%,#21343e 0%,#101c24 75%);color:#dde7e9}
+.visual{background:#101c24;color:#dde7e9;--muted:#a6b8c1;--line:#34444c}
+.scene-head,.scene-top{color:#dde7e9}
+.legend{color:#a6b8c1}
+#hover{background:#1d2c34;color:#dde7e9;border:1px solid #34444c;border-radius:4px}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
 </head>
@@ -137,7 +143,7 @@ function render(){const focusId=document.activeElement?.id;const l=layerSpec(sel
  if(scene)buildScene();
 }
 function box(x,y,z,w,h,d,color,opacity=1){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color,roughness:.8,transparent:opacity<1,opacity}));m.position.set(x,y,z);group.add(m);return m;}
-function label(text,x,y,z=0,size=.37){const c=document.createElement('canvas');c.width=1024;c.height=100;const ctx=c.getContext('2d');ctx.font='500 35px system-ui';ctx.textAlign='center';ctx.fillStyle='#243a40';ctx.fillText(text,512,62);const map=new THREE.CanvasTexture(c);map.colorSpace=THREE.SRGBColorSpace;const s=new THREE.Sprite(new THREE.SpriteMaterial({map,depthTest:false}));s.position.set(x,y,z);s.scale.set(size*10.24,size,1);group.add(s);return s;}
+function label(text,x,y,z=0,size=.37){const c=document.createElement('canvas');c.width=1024;c.height=100;const ctx=c.getContext('2d');ctx.font='500 35px system-ui';ctx.textAlign='center';ctx.fillStyle='#dde7e9';ctx.fillText(text,512,62);const map=new THREE.CanvasTexture(c);map.colorSpace=THREE.SRGBColorSpace;const s=new THREE.Sprite(new THREE.SpriteMaterial({map,depthTest:false}));s.position.set(x,y,z);s.scale.set(size*10.24,size,1);group.add(s);return s;}
 function line(points,color=0x9aaea6){const geometry=new THREE.BufferGeometry().setFromPoints(points.map(p=>new THREE.Vector3(...p)));group.add(new THREE.Line(geometry,new THREE.LineBasicMaterial({color})));}
 function arrow(a,b,color=0x9aaea6){const start=new THREE.Vector3(...a),delta=new THREE.Vector3(...b).sub(start);group.add(new THREE.ArrowHelper(delta.clone().normalize(),start,delta.length(),color,.2,.13));}
 function clearScene(){if(group){group.traverse(o=>{o.geometry?.dispose();for(const m of (Array.isArray(o.material)?o.material:[o.material])){if(m){m.map?.dispose();m.dispose();}}});scene.remove(group);}group=new THREE.Group();scene.add(group);pickables=[];pulsePath=null;pulse=null;}
@@ -161,8 +167,8 @@ $('reset').onclick=resetCamera;$('rotate').onclick=()=>{auto=!auto;$('rotate').s
 render();
 try{
  THREE=await import('three');({OrbitControls}=await import('three/addons/controls/OrbitControls.js'));
- renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.domElement.setAttribute('role','img');renderer.domElement.setAttribute('aria-label','Interactive architecture diagram. Equivalent details and keyboard controls are in the text panel.');$('stage').appendChild(renderer.domElement);
- scene=new THREE.Scene();scene.background=new THREE.Color(0xfffef9);camera=new THREE.OrthographicCamera(-10,10,8,-8,.1,100);controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.minZoom=.55;controls.maxZoom=2;controls.autoRotateSpeed=.5;
+ renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.domElement.setAttribute('role','img');renderer.domElement.setAttribute('aria-label','Interactive architecture diagram. Equivalent details and keyboard controls are in the text panel.');$('stage').appendChild(renderer.domElement);
+ scene=new THREE.Scene();camera=new THREE.OrthographicCamera(-10,10,8,-8,.1,100);controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.minZoom=.55;controls.maxZoom=2;controls.autoRotateSpeed=.5;
  scene.add(new THREE.HemisphereLight(0xffffff,0xa8b9b1,2.5));const light=new THREE.DirectionalLight(0xffffff,2.7);light.position.set(5,10,15);scene.add(light);
  const resize=()=>{const r=$('stage').getBoundingClientRect(),aspect=r.width/r.height,halfH=Math.max(8,8.7/aspect);renderer.setSize(r.width,r.height);camera.left=-halfH*aspect;camera.right=halfH*aspect;camera.top=halfH;camera.bottom=-halfH;camera.updateProjectionMatrix();};new ResizeObserver(resize).observe($('stage'));resize();
  const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();let down=null;
